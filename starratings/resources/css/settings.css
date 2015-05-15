@@ -1,0 +1,9 @@
+
+#settings-maxStarsAvailable label {
+	display: inline-block;
+	padding-left: 8px;
+}
+#settings-maxStarsAvailable p.warning {
+	display: none;
+	margin-top: 12px;
+}
