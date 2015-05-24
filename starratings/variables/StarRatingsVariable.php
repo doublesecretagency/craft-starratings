@@ -4,6 +4,7 @@ namespace Craft;
 class StarRatingsVariable
 {
 
+	private $_disabled = array();
 	private $_iconsJsIncluded = false;
 	private $_changeAllowedJsIncluded = false;
 	private $_devModeJsIncluded = false;
@@ -12,10 +13,12 @@ class StarRatingsVariable
 	public function stars($elementId)
 	{
 		// Include CSS
-		if (craft()->starRatings->settings['allowFontAwesome']) {
-			craft()->templates->includeCssResource('starratings/css/font-awesome.min.css');
+		if (!in_array('css', $this->_disabled)) {
+			if (craft()->starRatings->settings['allowFontAwesome']) {
+				craft()->templates->includeCssResource('starratings/css/font-awesome.min.css');
+			}
+			craft()->templates->includeCssResource('starratings/css/starratings.css');
 		}
-		craft()->templates->includeCssResource('starratings/css/starratings.css');
 
 		// Push star icons through to JS
 		if (!$this->_iconsJsIncluded) {
@@ -24,8 +27,12 @@ class StarRatingsVariable
 				'starIconHalf',
 				'starIconEmpty',
 			);
-			foreach ($starIcons as $icon) {
-				craft()->templates->includeJs('starRatings.'.$icon.' = '.json_encode(craft()->starRatings_rate->{$icon}).';');
+			if (!in_array('js', $this->_disabled)) {
+				$iconJs = '';
+				foreach ($starIcons as $icon) {
+					$iconJs .= 'starRatings.'.$icon.' = '.json_encode(craft()->starRatings_rate->{$icon}).';'.PHP_EOL;
+				}
+				craft()->templates->includeJs($iconJs);
 			}
 			$this->_iconsJsIncluded = true;
 		}
@@ -105,44 +112,59 @@ class StarRatingsVariable
 	// 
 	private function _includeJs()
 	{
-		craft()->templates->includeJsResource('starratings/js/sizzle.js');
-		craft()->templates->includeJsResource('starratings/js/superagent.js');
-		craft()->templates->includeJsResource('starratings/js/starratings.js');
-		// Allow Rating Change
-		if (craft()->starRatings->settings['allowRatingChange'] && !$this->_changeAllowedJsIncluded) {
-			craft()->templates->includeJs('starRatings.ratingChangeAllowed = true;');
-			$this->_changeAllowedJsIncluded = true;
-		}
-		// Dev Mode
-		if (craft()->config->get('devMode') && !$this->_devModeJsIncluded) {
-			craft()->templates->includeJs('starRatings.devMode = true;');
-			$this->_devModeJsIncluded = true;
-		}
-		// CSRF
-		if (craft()->config->get('enableCsrfProtection') === true) {
-			if (!craft()->starRatings->csrfIncluded) {
-				$csrf = '
+		if (!in_array('js', $this->_disabled)) {
+			craft()->templates->includeJsResource('starratings/js/sizzle.js');
+			craft()->templates->includeJsResource('starratings/js/superagent.js');
+			craft()->templates->includeJsResource('starratings/js/starratings.js');
+			// Allow Rating Change
+			if (craft()->starRatings->settings['allowRatingChange'] && !$this->_changeAllowedJsIncluded) {
+				craft()->templates->includeJs('starRatings.ratingChangeAllowed = true;');
+				$this->_changeAllowedJsIncluded = true;
+			}
+			// Dev Mode
+			if (craft()->config->get('devMode') && !$this->_devModeJsIncluded) {
+				craft()->templates->includeJs('starRatings.devMode = true;');
+				$this->_devModeJsIncluded = true;
+			}
+			// CSRF
+			if (craft()->config->get('enableCsrfProtection') === true) {
+				if (!craft()->starRatings->csrfIncluded) {
+					$csrf = '
 window.csrfTokenName = "'.craft()->config->get('csrfTokenName').'";
 window.csrfTokenValue = "'.craft()->request->getCsrfToken().'";
 ';
-				craft()->templates->includeJs($csrf);
-				craft()->starRatings->csrfIncluded = true;
+					craft()->templates->includeJs($csrf);
+					craft()->starRatings->csrfIncluded = true;
+				}
 			}
 		}
 	}
 
 	// ========================================================================
 
-	// 
+	// Sort by "highest rated"
 	public function sort(ElementCriteriaModel $entries)
 	{
 		return craft()->starRatings_query->orderByAvgRating($entries);
 	}
 
-	// 
+	// Customize star icons
 	public function setStarIcons($starMap = array())
 	{
 		return craft()->starRatings_rate->setStarIcons($starMap);
+	}
+
+	// Disable native CSS and/or JS
+	public function disable($resources = array())
+	{
+		if (is_string($resources)) {
+			$resources = array($resources);
+		}
+		if (is_array($resources)) {
+			return $this->_disabled = array_map('strtolower', $resources);
+		} else {
+			return false;
+		}
 	}
 
 }
