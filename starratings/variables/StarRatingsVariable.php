@@ -5,16 +5,20 @@ class StarRatingsVariable
 {
 
 	private $_disabled = array();
+	
 	private $_iconsJsIncluded = false;
 	private $_changeAllowedJsIncluded = false;
 	private $_devModeJsIncluded = false;
 
-	// 
-	public function stars($elementId)
+	// Render stars
+	public function stars($elementId, $allowElementRating = true)
 	{
+		// Alias settings
+		$settings =& craft()->starRatings->settings;
+
 		// Include CSS
 		if (!in_array('css', $this->_disabled)) {
-			if (craft()->starRatings->settings['allowFontAwesome']) {
+			if ($settings['allowFontAwesome']) {
 				craft()->templates->includeCssResource('starratings/css/font-awesome.min.css');
 			}
 			craft()->templates->includeCssResource('starratings/css/starratings.css');
@@ -38,12 +42,13 @@ class StarRatingsVariable
 		}
 
 		// Set total number of available stars
-		$total = craft()->starRatings->settings->maxStarsAvailable;
+		$total = $settings->maxStarsAvailable;
 
 		// Defaults to unrated
 		$userRating = 0;
+
 		// Get user vote history
-		if (craft()->starRatings->settings['requireLogin']) {
+		if ($settings['requireLogin']) {
 			$history = craft()->starRatings_query->userHistory();
 		} else {
 			$history = craft()->starRatings->anonymousHistory;
@@ -63,8 +68,6 @@ class StarRatingsVariable
 		$html = '';
 		for ($i = 1; $i <= $total; $i++) {
 
-			$js = $this->_starJs($elementId, $i);
-
 			$starValue = 'sr-value-'.$i;
 
 			if (!$userRating && ($i <= $avgRating)) {
@@ -72,7 +75,7 @@ class StarRatingsVariable
 				$star = craft()->starRatings_rate->starIconFull;
 				$starType = 'sr-avg-rating';
 				// Determine whether a half star is next
-				if ($halfStar && craft()->starRatings->settings['allowHalfStars']) {
+				if ($halfStar && $settings['allowHalfStars']) {
 					$halfStarNext = true;
 				}
 			} else if ($userRating && ($i <= $userRating)) {
@@ -96,6 +99,14 @@ class StarRatingsVariable
 			$classes .= ' '.$starValue;
 			$classes .= ' '.$starType;
 
+			$loggedInOrAnonOk = (craft()->userSession->getUser() || !$settings['requireLogin']);
+			$unratedOrReratable = (!$userRating || $settings['allowRatingChange']);
+			$ratable = ($allowElementRating && $loggedInOrAnonOk && $unratedOrReratable);
+			if ($ratable) {
+				$classes .= ' sr-ratable';
+			}
+
+			$js = $this->_starJs($elementId, $i, $allowElementRating);
 			$html .= '<span onclick="'.$js.'" class="'.$classes.'">'.$star.'</span>';
 		}
 
@@ -103,10 +114,11 @@ class StarRatingsVariable
 	}
 
 	// 
-	public function _starJs($elementId, $value, $prefix = false)
+	public function _starJs($elementId, $value, $allowElementRating, $prefix = false)
 	{
 		$this->_includeJs();
-		return ($prefix?'javascript:':'')."starRatings.rate($elementId, $value)";
+		$allow = ($allowElementRating ? 'true' : 'false');
+		return ($prefix?'javascript:':'')."starRatings.rate($elementId, $value, $allow)";
 	}
 
 	// 
