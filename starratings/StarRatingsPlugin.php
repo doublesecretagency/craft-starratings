@@ -43,7 +43,7 @@ class StarRatingsPlugin extends BasePlugin
 
 	public function getVersion()
 	{
-		return '1.0.0';
+		return '1.1.0';
 	}
 
 	public function getDeveloper()
