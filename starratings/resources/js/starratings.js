@@ -7,8 +7,8 @@ var starRatings = {
 	// Rate an element
 	rate: function (elementId, key, value, allowElementRating) {
 		// Set stars
-		var elementStars = Sizzle('.sr-element-'+elementId+(key ? '-'+key : ''));
-		var alreadyRated = Sizzle('.sr-user-rating.sr-element-'+elementId);
+		var elementStars = Sizzle('.sr-element-'+this._setItemKey(elementId, key));
+		var alreadyRated = Sizzle('.sr-user-rating.sr-element-'+this._setItemKey(elementId, key));
 		// Set data
 		var data = {
 			'id': elementId,
@@ -82,6 +82,10 @@ var starRatings = {
 				})
 			;
 		}
+	},
+	// Generate combined item key
+	_setItemKey: function (elementId, key) {
+		return elementId+(key ? '-'+key : '');
 	},
 	// Remove class from star
 	_removeClass: function (star, cssClass) {

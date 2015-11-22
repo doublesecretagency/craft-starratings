@@ -8,6 +8,8 @@ class StarRatings_RateService extends BaseApplicationComponent
 	public $starIconHalf;
 	public $starIconEmpty;
 
+	public $alreadyRatedMessage = 'You have already rated this element.';
+
 	//
 	public function init()
 	{
@@ -43,19 +45,16 @@ class StarRatings_RateService extends BaseApplicationComponent
 	//
 	public function rate($elementId, $key, $rating)
 	{
-
-		$alreadyRated = 'You have already rated this element.';
-
 		// If login is required
 		if (craft()->starRatings->settings['requireLogin']) {
 			// Update user history
 			if (!$this->_updateUserHistoryDatabase($elementId, $key, $rating)) {
-				return $alreadyRated;
+				return $this->alreadyRatedMessage;
 			}
 		} else {
 			// Update user cookie
 			if (!$this->_updateUserHistoryCookie($elementId, $key, $rating)) {
-				return $alreadyRated;
+				return $this->alreadyRatedMessage;
 			}
 		}
 
@@ -68,7 +67,6 @@ class StarRatings_RateService extends BaseApplicationComponent
 			'key'    => $key,
 			'rating' => $rating,
 		);
-
 	}
 
 	//
@@ -77,18 +75,16 @@ class StarRatings_RateService extends BaseApplicationComponent
 		$this->_removeRatingFromDb($elementId, $key);
 		$this->_removeRatingFromCookie($elementId, $key);
 
-		$alreadyRated = 'You have already rated this element.';
-
 		// If login is required
 		if (craft()->starRatings->settings['requireLogin']) {
 			// Update user history
 			if (!$this->_updateUserHistoryDatabase($elementId, $key, $newRating)) {
-				return $alreadyRated;
+				return $this->alreadyRatedMessage;
 			}
 		} else {
 			// Update user cookie
 			if (!$this->_updateUserHistoryCookie($elementId, $key, $newRating)) {
-				return $alreadyRated;
+				return $this->alreadyRatedMessage;
 			}
 		}
 
