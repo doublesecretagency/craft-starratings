@@ -5,14 +5,21 @@ class StarRatingsVariable
 {
 
 	private $_disabled = array();
-	
+
 	private $_iconsJsIncluded = false;
 	private $_changeAllowedJsIncluded = false;
 	private $_devModeJsIncluded = false;
 
 	// Render stars
-	public function stars($elementId, $allowElementRating = true)
+	public function stars($elementId, $key = null, $allowElementRating = true)
 	{
+
+		// Allow $key parameter to be skipped
+		if ((null !== $key) && is_bool($key)) {
+			$allowElementRating = $key;
+			$key = null;
+		}
+
 		// Alias settings
 		$settings =& craft()->starRatings->settings;
 
@@ -55,12 +62,13 @@ class StarRatingsVariable
 		}
 
 		// If user already rated this element, get rating
-		if (array_key_exists($elementId, $history)) {
-			$userRating = $history[$elementId];
+		$item = craft()->starRatings->setItemKey($elementId, $key);
+		if (array_key_exists($item, $history)) {
+			$userRating = $history[$item];
 		}
 
 		// Get average rating of element
-		$avgRating = craft()->starRatings_query->avgRating($elementId);
+		$avgRating = craft()->starRatings_query->avgRating($elementId, $key);
 
 		$halfStar = (fmod($avgRating, 1) >= 0.5);
 		$halfStarNext = false;
@@ -94,10 +102,8 @@ class StarRatingsVariable
 				}
 			}
 
-			$classes  =  'sr-star';
-			$classes .= ' sr-element-'.$elementId;
-			$classes .= ' '.$starValue;
-			$classes .= ' '.$starType;
+			$starElement = 'sr-element-'.$elementId.($key ? '-'.$key : '');
+			$classes = 'sr-star '.$starElement.' '.$starValue.' '.$starType;
 
 			$loggedInOrAnonOk = (craft()->userSession->getUser() || !$settings['requireLogin']);
 			$unratedOrReratable = (!$userRating || $settings['allowRatingChange']);
@@ -106,22 +112,23 @@ class StarRatingsVariable
 				$classes .= ' sr-ratable';
 			}
 
-			$js = $this->_starJs($elementId, $i, $allowElementRating);
+			$js = $this->_starJs($elementId, $key, $i, $allowElementRating);
 			$html .= '<span onclick="'.$js.'" class="'.$classes.'">'.$star.'</span>';
 		}
 
 		return TemplateHelper::getRaw($html);
 	}
 
-	// 
-	public function _starJs($elementId, $value, $allowElementRating, $prefix = false)
+	//
+	public function _starJs($elementId, $key, $value, $allowElementRating, $prefix = false)
 	{
 		$this->_includeJs();
+		$jsKey = ($key ? "'$key'" : 'null');
 		$allow = ($allowElementRating ? 'true' : 'false');
-		return ($prefix?'javascript:':'')."starRatings.rate($elementId, $value, $allow)";
+		return ($prefix?'javascript:':'')."starRatings.rate($elementId, $jsKey, $value, $allow)";
 	}
 
-	// 
+	//
 	private function _includeJs()
 	{
 		if (!in_array('js', $this->_disabled)) {

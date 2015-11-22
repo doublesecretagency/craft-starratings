@@ -5,12 +5,18 @@ class StarRatingsService extends BaseApplicationComponent
 {
 
 	public $settings;
-	
+
 	public $userCookie = 'RatingHistory';
 	public $userCookieLifespan = 315569260; // Lasts 10 years
 	public $anonymousHistory;
 
 	public $csrfIncluded = false;
+
+	// Generate combined item key
+	public function setItemKey($elementId, $key)
+	{
+		return $elementId.($key ? ':'.$key : '');
+	}
 
 	public function getAnonymousHistory()
 	{
@@ -26,7 +32,7 @@ class StarRatingsService extends BaseApplicationComponent
 	{
 		if ($new) {
 			$record = new StarRatings_ElementRatingRecord;
-			$record->id = $elementId;
+			$record->elementId = $elementId;
 			$record->avgRating = 0;
 			$record->totalVotes = 0;
 			$record->save();
@@ -48,7 +54,7 @@ class StarRatingsService extends BaseApplicationComponent
 			$this->initElementTally($elementId);
 		}
 	}
-	
+
 	// Coming Soon
 	//  - Will allow complex vote filtering,
 	//    based on detailed vote log

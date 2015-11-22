@@ -11,6 +11,7 @@ class StarRatings_ElementRatingRecord extends BaseRecord
 	protected function defineAttributes()
 	{
 		return array(
+			'starKey' => AttributeType::String,
 			'avgRating' => array(
 				AttributeType::Number,
 				'column'   => ColumnType::Decimal,
@@ -24,7 +25,7 @@ class StarRatings_ElementRatingRecord extends BaseRecord
 	public function defineRelations()
 	{
 		return array(
-			'element' => array(static::BELONGS_TO, 'ElementRecord', 'id', 'required' => true, 'onDelete' => static::CASCADE),
+			'element' => array(static::BELONGS_TO, 'ElementRecord', 'required' => true, 'onDelete' => static::CASCADE),
 		);
 	}
 

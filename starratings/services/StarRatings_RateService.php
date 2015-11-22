@@ -8,13 +8,13 @@ class StarRatings_RateService extends BaseApplicationComponent
 	public $starIconHalf;
 	public $starIconEmpty;
 
-	// 
+	//
 	public function init()
 	{
 		$this->_loadIcons();
 	}
 
-	// 
+	//
 	private function _loadIcons()
 	{
 		$this->starIconFull  = $this->_fa('star');
@@ -22,13 +22,13 @@ class StarRatings_RateService extends BaseApplicationComponent
 		$this->starIconEmpty = $this->_fa('star-o');
 	}
 
-	// 
+	//
 	private function _fa($starType)
 	{
 		return '<i class="fa fa-'.$starType.'"></i>';
 	}
 
-	// 
+	//
 	public function setStarIcons($starMap = array())
 	{
 		foreach ($starMap as $type => $html) {
@@ -38,11 +38,10 @@ class StarRatings_RateService extends BaseApplicationComponent
 				case 'empty' : $this->starIconEmpty = $html; break;
 			}
 		}
-
 	}
 
-	// 
-	public function rate($elementId, $rating)
+	//
+	public function rate($elementId, $key, $rating)
 	{
 
 		$alreadyRated = 'You have already rated this element.';
@@ -50,59 +49,61 @@ class StarRatings_RateService extends BaseApplicationComponent
 		// If login is required
 		if (craft()->starRatings->settings['requireLogin']) {
 			// Update user history
-			if (!$this->_updateUserHistoryDatabase($elementId, $rating)) {
+			if (!$this->_updateUserHistoryDatabase($elementId, $key, $rating)) {
 				return $alreadyRated;
 			}
 		} else {
 			// Update user cookie
-			if (!$this->_updateUserHistoryCookie($elementId, $rating)) {
+			if (!$this->_updateUserHistoryCookie($elementId, $key, $rating)) {
 				return $alreadyRated;
 			}
 		}
-		
+
 		// Update element average rating
-		$this->_updateElementAvgRating($elementId, $rating);
-		$this->_updateRatingLog($elementId, $rating);
+		$this->_updateElementAvgRating($elementId, $key, $rating);
+		$this->_updateRatingLog($elementId, $key, $rating);
 
 		return array(
 			'id'     => $elementId,
+			'key'    => $key,
 			'rating' => $rating,
 		);
 
 	}
 
-	// 
-	public function changeRating($elementId, $newRating, $oldRating)
+	//
+	public function changeRating($elementId, $key, $newRating, $oldRating)
 	{
-		$this->_removeRatingFromCookie($elementId);
-		$this->_removeRatingFromDb($elementId);
+		$this->_removeRatingFromDb($elementId, $key);
+		$this->_removeRatingFromCookie($elementId, $key);
 
 		$alreadyRated = 'You have already rated this element.';
 
 		// If login is required
 		if (craft()->starRatings->settings['requireLogin']) {
 			// Update user history
-			if (!$this->_updateUserHistoryDatabase($elementId, $newRating)) {
+			if (!$this->_updateUserHistoryDatabase($elementId, $key, $newRating)) {
 				return $alreadyRated;
 			}
 		} else {
 			// Update user cookie
-			if (!$this->_updateUserHistoryCookie($elementId, $newRating)) {
+			if (!$this->_updateUserHistoryCookie($elementId, $key, $newRating)) {
 				return $alreadyRated;
 			}
 		}
 
-		$this->_updateElementAvgRating($elementId, $oldRating, true);
-		$this->_updateElementAvgRating($elementId, $newRating);
-		$this->_updateRatingLog($elementId, $newRating, true);
+		$this->_updateElementAvgRating($elementId, $key, $oldRating, true);
+		$this->_updateElementAvgRating($elementId, $key, $newRating);
+		$this->_updateRatingLog($elementId, $key, $newRating, true);
 		return array(
 			'id'     => $elementId,
+			'key'    => $key,
 			'rating' => $newRating,
 		);
 	}
 
-	// 
-	private function _updateUserHistoryDatabase($elementId, $rating)
+	//
+	private function _updateUserHistoryDatabase($elementId, $key, $rating)
 	{
 		$user = craft()->userSession->getUser();
 		// If user is not logged in, return false
@@ -111,32 +112,34 @@ class StarRatings_RateService extends BaseApplicationComponent
 		}
 		// Load existing element history
 		$record = StarRatings_UserHistoryRecord::model()->findByPK($user->id);
+		$item = craft()->starRatings->setItemKey($elementId, $key);
 		// If no history exists, create new
 		if (!$record) {
 			$record = new StarRatings_UserHistoryRecord;
 			$record->id = $user->id;
 			$history = array();
 		// Else if user already rated element, return false
-		} else if (array_key_exists($elementId, $record->history)) {
+		} else if (array_key_exists($item, $record->history)) {
 			return false;
 		// Else, add rating to history
 		} else {
 			$history = $record->history;
 		}
 		// Register rating
-		$history[$elementId] = $rating;
+		$history[$item] = $rating;
 		$record->history = $history;
 		// Save
 		return $record->save();
 	}
 
-	// 
-	private function _updateUserHistoryCookie($elementId, $rating)
+	//
+	private function _updateUserHistoryCookie($elementId, $key, $rating)
 	{
 		$history =& craft()->starRatings->anonymousHistory;
+		$item = craft()->starRatings->setItemKey($elementId, $key);
 		// If not already voted for, cast vote
-		if (!array_key_exists($elementId, $history)) {
-			$history[$elementId] = $rating;
+		if (!array_key_exists($item, $history)) {
+			$history[$item] = $rating;
 			$this->_saveUserHistoryCookie();
 			return true;
 		} else {
@@ -145,7 +148,7 @@ class StarRatings_RateService extends BaseApplicationComponent
 
 	}
 
-	// 
+	//
 	private function _saveUserHistoryCookie()
 	{
 		$cookie   = craft()->starRatings->userCookie;
@@ -154,11 +157,14 @@ class StarRatings_RateService extends BaseApplicationComponent
 		craft()->userSession->saveCookie($cookie, $history, $lifespan);
 	}
 
-	// 
-	private function _updateElementAvgRating($elementId, $rating, $removingRating = false)
+	//
+	private function _updateElementAvgRating($elementId, $key, $rating, $removingRating = false)
 	{
 		// Load existing element avgRating
-		$record = StarRatings_ElementRatingRecord::model()->findByPK($elementId);
+		$record = StarRatings_ElementRatingRecord::model()->findByAttributes(array(
+			'elementId' => $elementId,
+			'starKey'   => $key,
+		));
 		// If average rating exists
 		if ($record) {
 			// Get current grand total
@@ -181,42 +187,37 @@ class StarRatings_RateService extends BaseApplicationComponent
 		} else if (!$removingRating) {
 			// Create new
 			$record = new StarRatings_ElementRatingRecord;
-			$record->id = $elementId;
-			$record->avgRating = $rating;
+			$record->elementId  = $elementId;
+			$record->starKey    = $key;
+			$record->avgRating  = $rating;
 			$record->totalVotes = 1;
 		}
 		// Save
-		return $record->save();
+		if ($record) {
+			return $record->save();
+		} else {
+			return false;
+		}
 	}
 
-	// 
-	private function _updateRatingLog($elementId, $rating, $changed = false)
+	//
+	private function _updateRatingLog($elementId, $key, $rating, $changed = false)
 	{
 		if (craft()->starRatings->settings['keepRatingLog']) {
 			$currentUser = craft()->userSession->getUser();
 			$record = new StarRatings_RatingLogRecord;
-			$record->elementId = $elementId;
-			$record->userId    = ($currentUser ? $currentUser->id : null);
-			$record->ipAddress = $_SERVER['REMOTE_ADDR'];
-			$record->ratingValue = $rating;
+			$record->elementId     = $elementId;
+			$record->starKey       = $key;
+			$record->userId        = ($currentUser ? $currentUser->id : null);
+			$record->ipAddress     = $_SERVER['REMOTE_ADDR'];
+			$record->ratingValue   = $rating;
 			$record->ratingChanged = (int) $changed;
 			$record->save();
 		}
 	}
 
-	// 
-	private function _removeRatingFromCookie($elementId)
-	{
-		// Remove from cookie history
-		$historyCookie =& craft()->starRatings->anonymousHistory;
-		if (array_key_exists($elementId, $historyCookie)) {
-			unset($historyCookie[$elementId]);
-			$this->_saveUserHistoryCookie();
-		}
-	}
-
-	// 
-	private function _removeRatingFromDb($elementId)
+	//
+	private function _removeRatingFromDb($elementId, $key)
 	{
 		$user = craft()->userSession->getUser();
 		if ($user) {
@@ -224,12 +225,25 @@ class StarRatings_RateService extends BaseApplicationComponent
 			if ($record) {
 				// Remove from database history
 				$historyDb = $record->history;
-				if (array_key_exists($elementId, $historyDb)) {
-					unset($historyDb[$elementId]);
+				$item = craft()->starRatings->setItemKey($elementId, $key);
+				if (array_key_exists($item, $historyDb)) {
+					unset($historyDb[$item]);
 					$record->history = $historyDb;
 					$record->save();
 				}
 			}
+		}
+	}
+
+	//
+	private function _removeRatingFromCookie($elementId, $key)
+	{
+		// Remove from cookie history
+		$historyCookie =& craft()->starRatings->anonymousHistory;
+		$item = craft()->starRatings->setItemKey($elementId, $key);
+		if (array_key_exists($item, $historyCookie)) {
+			unset($historyCookie[$item]);
+			$this->_saveUserHistoryCookie();
 		}
 	}
 

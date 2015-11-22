@@ -17,8 +17,8 @@ class m151113_000000_starRatings_addKeyColumn extends BaseMigration
 
 	private function _addKeyColumns()
 	{
-		$this->addColumnAfter('starratings_elementratings', 'key', ColumnType::Varchar, 'id');
-		$this->addColumnAfter('starratings_ratinglog',      'key', ColumnType::Varchar, 'elementId');
+		$this->addColumnAfter('starratings_elementratings', 'starKey', ColumnType::Varchar, 'id');
+		$this->addColumnAfter('starratings_ratinglog',      'starKey', ColumnType::Varchar, 'elementId');
 	}
 
 	private function _addElementIdColumn($table)

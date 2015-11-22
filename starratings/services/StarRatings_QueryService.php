@@ -4,14 +4,17 @@ namespace Craft;
 class StarRatings_QueryService extends BaseApplicationComponent
 {
 
-	// 
-	public function avgRating($elementId)
+	//
+	public function avgRating($elementId, $key)
 	{
-		$record = StarRatings_ElementRatingRecord::model()->findByPK($elementId);
+		$record = StarRatings_ElementRatingRecord::model()->findByAttributes(array(
+			'elementId' => $elementId,
+			'starKey'   => $key,
+		));
 		return ($record ? $record->avgRating : 0);
 	}
 
-	// 
+	//
 	public function userHistory()
 	{
 		$user = craft()->userSession->getUser();

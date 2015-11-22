@@ -5,13 +5,14 @@ var ajax = window.superagent;
 var starRatings = {
 	ratingChangeAllowed: false,
 	// Rate an element
-	rate: function (elementId, value, allowElementRating) {
+	rate: function (elementId, key, value, allowElementRating) {
 		// Set stars
-		var elementStars = Sizzle('.sr-element-'+elementId);
+		var elementStars = Sizzle('.sr-element-'+elementId+(key ? '-'+key : ''));
 		var alreadyRated = Sizzle('.sr-user-rating.sr-element-'+elementId);
 		// Set data
 		var data = {
 			'id': elementId,
+			'key': key,
 			'rating': value
 		};
 		// Initialize action
@@ -50,7 +51,7 @@ var starRatings = {
 				.end(function (response) {
 					var results = JSON.parse(response.text);
 					if (starRatings.devMode) {
-						console.log('['+elementId+'] Rated '+value+' stars');
+						console.log('['+elementId+']'+(key ? ' ['+key+']' : '')+' Rated '+value+' stars');
 						console.log(results);
 					}
 					var errorReturned = (typeof results == 'string' || results instanceof String);
