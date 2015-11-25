@@ -10,30 +10,6 @@ class StarRatingsPlugin extends BasePlugin
 		// Plugin Settings
 		craft()->starRatings->settings = $this->getSettings();
 		craft()->starRatings->getAnonymousHistory();
-		// Events
-		if (2.3 <= craft()->getVersion()) {
-			// NEW EVENT (Craft v2.3)
-			craft()->on('elements.saveElement', function(Event $event) {
-				craft()->starRatings->initElementTally($event->params['element']->id, $event->params['isNewElement']);
-			});
-		} else {
-			// ORIGINAL EVENTS
-			craft()->on('assets.saveAsset', function(Event $event) {
-				craft()->starRatings->initElementTally($event->params['asset']->id);
-			});
-			craft()->on('categories.saveCategory', function(Event $event) {
-				craft()->starRatings->initElementTally($event->params['category']->id, $event->params['isNewCategory']);
-			});
-			craft()->on('entries.saveEntry', function(Event $event) {
-				craft()->starRatings->initElementTally($event->params['entry']->id, $event->params['isNewEntry']);
-			});
-			craft()->on('tags.saveTag', function(Event $event) {
-				craft()->starRatings->initElementTally($event->params['tag']->id, $event->params['isNewTag']);
-			});
-			craft()->on('users.saveUser', function(Event $event) {
-				craft()->starRatings->initElementTally($event->params['user']->id, $event->params['isNewUser']);
-			});
-		}
 	}
 
 	public function getName()
@@ -79,11 +55,6 @@ class StarRatingsPlugin extends BasePlugin
 			'allowFontAwesome'  => array(AttributeType::Bool,   'default' => true),
 			'keepRatingLog'     => array(AttributeType::Bool,   'default' => false),
 		);
-	}
-
-	public function onAfterInstall()
-	{
-		craft()->starRatings->initAllElementTallies();
 	}
 
 }
