@@ -28,23 +28,38 @@ class StarRatings_QueryService extends BaseApplicationComponent
 	}
 
 	//
-	public function orderByAvgRating(ElementCriteriaModel $criteria) {
-		$elementIds = $this->_elementIdsByAvgRating();
-		$criteria->setAttribute('id', $elementIds);
-		$criteria->setAttribute('order', 'FIELD(elements.id, '.join(', ', $elementIds).')');
+	public function orderByAvgRating(ElementCriteriaModel $criteria, $key = null)
+	{
+		// Collect and sort elementIds
+		$elementIds = $this->_elementIdsByAvgRating($key);
+		if ($elementIds) {
+			// Match order of criteria to elementIds
+			$criteria->setAttribute('order', 'FIELD(elements.id, '.join(', ', $elementIds).') DESC');
+		}
 		return $criteria;
 	}
 
 	//
-	private function _elementIdsByAvgRating() {
-		$ranking = StarRatings_ElementRatingRecord::model()->findAll(array(
-			'order' => 'avgRating DESC, totalVotes DESC, id ASC'
-		));
-		$elementIds = array();
-		foreach ($ranking as $element) {
-			$elementIds[] = $element->id;
+	private function _elementIdsByAvgRating($key)
+	{
+		// Don't proceed if key isn't null, string, or numeric
+		if (!is_null($key) && !is_string($key) && !is_numeric($key)) {
+			return false;
+		} else if (null === $key) {
+			$conditions = 'starKey IS NULL';
+		} else {
+			$conditions = 'starKey = :key';
 		}
-		return $elementIds;
+		// Get matching ratings
+		$query = craft()->db->createCommand()
+			->select('elementId')
+			->from('starratings_elementratings')
+			->where($conditions, array(':key' => $key))
+			->order('avgRating desc, totalVotes desc, dateUpdated desc')
+		;
+		// Return elementIds
+		$elementIds = $query->queryColumn();
+		return array_reverse($elementIds);
 	}
 
 }

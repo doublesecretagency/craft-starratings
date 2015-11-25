@@ -162,9 +162,9 @@ window.csrfTokenValue = "'.craft()->request->getCsrfToken().'";
 	// ========================================================================
 
 	// Sort by "highest rated"
-	public function sort(ElementCriteriaModel $entries)
+	public function sort(ElementCriteriaModel $entries, $key = null)
 	{
-		return craft()->starRatings_query->orderByAvgRating($entries);
+		return craft()->starRatings_query->orderByAvgRating($entries, $key);
 	}
 
 	// Customize star icons
