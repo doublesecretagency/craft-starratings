@@ -17,14 +17,24 @@ class StarRatingsPlugin extends BasePlugin
 		return Craft::t('Star Ratings');
 	}
 
+	public function getDescription()
+	{
+		return 'An easily customizable ratings system!';
+	}
+
+	public function getDocumentationUrl()
+	{
+		return 'https://craftpl.us/plugins/star-ratings';
+	}
+
 	public function getVersion()
 	{
-		return '1.1.1';
+		return '1.2.0';
 	}
 
 	public function getSchemaVersion()
 	{
-		return '1.1.1';
+		return '1.2.0';
 	}
 
 	public function getDeveloper()
