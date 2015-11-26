@@ -12,6 +12,7 @@ class m151113_000000_starRatings_addKeyColumn extends BaseMigration
 		$this->_copyForeignKeyData($table);
 		$this->_cleanupColumns($table);
 		$this->_renumberPrimaryKey($table);
+		$this->_removeZeros($table);
 		return true;
 	}
 
@@ -69,6 +70,13 @@ class m151113_000000_starRatings_addKeyColumn extends BaseMigration
 			);
 			$this->update($table, $newData, 'elementId=:elementId', array(':elementId'=>$row['elementId']));
 		}
+	}
+
+	private function _removeZeros($table)
+	{
+		craft()->db->createCommand()
+			->delete($table, 'totalVotes=0')
+		;
 	}
 
 }
