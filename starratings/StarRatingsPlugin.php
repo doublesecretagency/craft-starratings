@@ -19,7 +19,7 @@ class StarRatingsPlugin extends BasePlugin
 
 	public function getDescription()
 	{
-		return 'An easily customizable ratings system!';
+		return 'An easily customizable ratings system.';
 	}
 
 	public function getDocumentationUrl()
@@ -29,7 +29,7 @@ class StarRatingsPlugin extends BasePlugin
 
 	public function getVersion()
 	{
-		return '1.2.0-rc2';
+		return '1.2.0-rc3';
 	}
 
 	public function getSchemaVersion()
