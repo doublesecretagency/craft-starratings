@@ -13,6 +13,10 @@ class StarRatingsVariable
 	// Render stars
 	public function stars($elementId, $key = null, $allowElementRating = true)
 	{
+		// If element ID is invalid, return error
+		if (!$elementId || !is_numeric($elementId)) {
+			return 'Invalid element ID';
+		}
 
 		// Allow $key parameter to be skipped
 		if ((null !== $key) && is_bool($key)) {
