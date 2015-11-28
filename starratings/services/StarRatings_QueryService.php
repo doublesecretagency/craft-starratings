@@ -34,7 +34,7 @@ class StarRatings_QueryService extends BaseApplicationComponent
 		$elementIds = $this->_elementIdsByAvgRating($key);
 		if ($elementIds) {
 			// Match order of criteria to elementIds
-			$criteria->setAttribute('order', 'FIELD(elements.id, '.join(', ', $elementIds).') DESC');
+			$criteria->setAttribute('order', 'FIELD(id, '.join(', ', $elementIds).') DESC');
 		}
 		return $criteria;
 	}
