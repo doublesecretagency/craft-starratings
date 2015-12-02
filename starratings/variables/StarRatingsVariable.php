@@ -10,6 +10,18 @@ class StarRatingsVariable
 	private $_changeAllowedJsIncluded = false;
 	private $_devModeJsIncluded = false;
 
+	// Output avgerage rating of stars
+	public function avgRating($elementId, $key = null)
+	{
+		// If element ID is invalid, log error
+		if (!$elementId || !is_numeric($elementId)) {
+			StarRatingsPlugin::log('Invalid element ID');
+			return 0;
+		}
+
+		return craft()->starRatings_query->avgRating($elementId, $key);
+	}
+
 	// Render stars
 	public function stars($elementId, $key = null, $allowElementRating = true)
 	{
