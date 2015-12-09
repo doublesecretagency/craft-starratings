@@ -22,6 +22,13 @@ class StarRatingsVariable
 		return craft()->starRatings_query->avgRating($elementId, $key);
 	}
 
+	// Render stars manually
+	public function manualStars($rating)
+	{
+		// Draw stars
+		return $this->_drawStars($rating);
+	}
+
 	// Render stars
 	public function stars($elementId, $key = null, $allowElementRating = true)
 	{
@@ -36,61 +43,25 @@ class StarRatingsVariable
 			$key = null;
 		}
 
-		// Alias settings
-		$settings =& craft()->starRatings->settings;
+		// Get ratings
+		$avgRating  = craft()->starRatings_query->avgRating($elementId, $key);
+		$userRating = craft()->starRatings_query->userRating($elementId, $key);
 
-		// Include CSS
-		if (!in_array('css', $this->_disabled)) {
-			if ($settings['allowFontAwesome']) {
-				craft()->templates->includeCssResource('starratings/css/font-awesome.min.css');
-			}
-			craft()->templates->includeCssResource('starratings/css/starratings.css');
-		}
+		// Draw stars
+		return $this->_drawStars($avgRating, $userRating, $elementId, $key, $allowElementRating);
+	}
 
-		// Push star icons through to JS
-		if (!$this->_iconsJsIncluded) {
-			$starIcons = array(
-				'starIconFull',
-				'starIconHalf',
-				'starIconEmpty',
-			);
-			if (!in_array('js', $this->_disabled)) {
-				$iconJs = '';
-				foreach ($starIcons as $icon) {
-					$iconJs .= 'starRatings.'.$icon.' = '.json_encode(craft()->starRatings_rate->{$icon}).';'.PHP_EOL;
-				}
-				craft()->templates->includeJs($iconJs);
-			}
-			$this->_iconsJsIncluded = true;
-		}
-
+	// Draw stars
+	private function _drawStars($avgRating, $userRating = 0, $elementId = null, $key = null, $allowElementRating = false)
+	{
 		// Set total number of available stars
-		$total = $settings->maxStarsAvailable;
-
-		// Defaults to unrated
-		$userRating = 0;
-
-		// Get user vote history
-		if ($settings['requireLogin']) {
-			$history = craft()->starRatings_query->userHistory();
-		} else {
-			$history = craft()->starRatings->anonymousHistory;
-		}
-
-		// If user already rated this element, get rating
-		$item = craft()->starRatings->setItemKey($elementId, $key);
-		if (array_key_exists($item, $history)) {
-			$userRating = $history[$item];
-		}
-
-		// Get average rating of element
-		$avgRating = craft()->starRatings_query->avgRating($elementId, $key);
+		$maxStarsAvailable = craft()->starRatings->settings['maxStarsAvailable'];
 
 		$halfStar = (fmod($avgRating, 1) >= 0.5);
 		$halfStarNext = false;
 
 		$html = '';
-		for ($i = 1; $i <= $total; $i++) {
+		for ($i = 1; $i <= $maxStarsAvailable; $i++) {
 
 			$starValue = 'sr-value-'.$i;
 
@@ -99,7 +70,7 @@ class StarRatingsVariable
 				$star = craft()->starRatings_rate->starIconFull;
 				$starType = 'sr-avg-rating';
 				// Determine whether a half star is next
-				if ($halfStar && $settings['allowHalfStars']) {
+				if ($halfStar && craft()->starRatings->settings['allowHalfStars']) {
 					$halfStarNext = true;
 				}
 			} else if ($userRating && ($i <= $userRating)) {
@@ -121,22 +92,36 @@ class StarRatingsVariable
 			$starElement = 'sr-element-'.$elementId.($key ? '-'.$key : '');
 			$classes = 'sr-star '.$starElement.' '.$starValue.' '.$starType;
 
-			$loggedInOrAnonOk = (craft()->userSession->getUser() || !$settings['requireLogin']);
-			$unratedOrReratable = (!$userRating || $settings['allowRatingChange']);
+			$loggedInOrAnonOk = (craft()->userSession->getUser() || !craft()->starRatings->settings['requireLogin']);
+			$unratedOrReratable = (!$userRating || craft()->starRatings->settings['allowRatingChange']);
 			$ratable = ($allowElementRating && $loggedInOrAnonOk && $unratedOrReratable);
 			if ($ratable) {
 				$classes .= ' sr-ratable';
 			}
 
+			$this->_includeCss();
+
 			$js = $this->_starJs($elementId, $key, $i, $allowElementRating);
 			$html .= '<span onclick="'.$js.'" class="'.$classes.'">'.$star.'</span>';
 		}
 
+
 		return TemplateHelper::getRaw($html);
 	}
 
+	// Include CSS
+	private function _includeCss()
+	{
+		if (!in_array('css', $this->_disabled)) {
+			if (craft()->starRatings->settings['allowFontAwesome']) {
+				craft()->templates->includeCssResource('starratings/css/font-awesome.min.css');
+			}
+			craft()->templates->includeCssResource('starratings/css/starratings.css');
+		}
+	}
+
 	//
-	public function _starJs($elementId, $key, $value, $allowElementRating, $prefix = false)
+	private function _starJs($elementId, $key, $value, $allowElementRating, $prefix = false)
 	{
 		$this->_includeJs();
 		$jsKey = ($key ? "'$key'" : 'null');
@@ -147,6 +132,22 @@ class StarRatingsVariable
 	//
 	private function _includeJs()
 	{
+		// Push star icons through to JS
+		if (!$this->_iconsJsIncluded) {
+			if (!in_array('js', $this->_disabled)) {
+				$iconJs = '';
+				$starIcons = array(
+					'starIconFull',
+					'starIconHalf',
+					'starIconEmpty',
+				);
+				foreach ($starIcons as $icon) {
+					$iconJs .= 'starRatings.'.$icon.' = '.json_encode(craft()->starRatings_rate->{$icon}).';'.PHP_EOL;
+				}
+				craft()->templates->includeJs($iconJs);
+			}
+			$this->_iconsJsIncluded = true;
+		}
 		if (!in_array('js', $this->_disabled)) {
 			craft()->templates->includeJsResource('starratings/js/sizzle.js');
 			craft()->templates->includeJsResource('starratings/js/superagent.js');

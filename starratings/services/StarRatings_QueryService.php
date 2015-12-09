@@ -15,6 +15,28 @@ class StarRatings_QueryService extends BaseApplicationComponent
 	}
 
 	//
+	public function userRating($elementId, $key)
+	{
+		// Defaults to unrated
+		$userRating = 0;
+
+		// Get user vote history
+		if (craft()->starRatings->settings['requireLogin']) {
+			$history = craft()->starRatings_query->userHistory();
+		} else {
+			$history = craft()->starRatings->anonymousHistory;
+		}
+
+		// If user already rated this element, get rating
+		$item = craft()->starRatings->setItemKey($elementId, $key);
+		if (array_key_exists($item, $history)) {
+			$userRating = $history[$item];
+		}
+
+		return $userRating;
+	}
+
+	//
 	public function userHistory()
 	{
 		$user = craft()->userSession->getUser();
