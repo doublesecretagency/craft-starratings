@@ -6,28 +6,8 @@ class StarRatingsVariable
 
 	private $_disabled = array();
 
-	private $_iconsJsIncluded = false;
-	private $_changeAllowedJsIncluded = false;
-	private $_devModeJsIncluded = false;
-
-	// Output avgerage rating of stars
-	public function avgRating($elementId, $key = null)
-	{
-		// If element ID is invalid, log error
-		if (!$elementId || !is_numeric($elementId)) {
-			StarRatingsPlugin::log('Invalid element ID');
-			return 0;
-		}
-
-		return craft()->starRatings_query->avgRating($elementId, $key);
-	}
-
-	// Render stars manually
-	public function manualStars($rating)
-	{
-		// Draw stars
-		return $this->_drawStars($rating);
-	}
+	private $_cssIncluded = false;
+	private $_jsIncluded  = false;
 
 	// Render stars
 	public function stars($elementId, $key = null, $allowElementRating = true)
@@ -51,6 +31,12 @@ class StarRatingsVariable
 		return $this->_drawStars($avgRating, $userRating, $elementId, $key, $allowElementRating);
 	}
 
+	// Render locked stars
+	public function lockedStars($rating)
+	{
+		return $this->_drawStars($rating);
+	}
+
 	// Draw stars
 	private function _drawStars($avgRating, $userRating = 0, $elementId = null, $key = null, $allowElementRating = false)
 	{
@@ -63,7 +49,10 @@ class StarRatingsVariable
 		$html = '';
 		for ($i = 1; $i <= $maxStarsAvailable; $i++) {
 
-			$starValue = 'sr-value-'.$i;
+			$this->_includeCss();
+
+			// Initialize star classes
+			$classes = 'sr-star sr-value-'.$i;
 
 			if (!$userRating && ($i <= $avgRating)) {
 				// Average rating
@@ -88,80 +77,82 @@ class StarRatingsVariable
 					$starType = 'sr-unrated';
 				}
 			}
+			$classes .= ' '.$starType;
 
-			$starElement = 'sr-element-'.$elementId.($key ? '-'.$key : '');
-			$classes = 'sr-star '.$starElement.' '.$starValue.' '.$starType;
+			// If element specified
+			if ($elementId) {
+				$classes .= ' sr-element-'.$elementId.($key ? '-'.$key : '');
+			} else {
+				$classes .= ' sr-locked';
+			}
 
+			// If element is ratable
 			$loggedInOrAnonOk = (craft()->userSession->getUser() || !craft()->starRatings->settings['requireLogin']);
 			$unratedOrReratable = (!$userRating || craft()->starRatings->settings['allowRatingChange']);
-			$ratable = ($allowElementRating && $loggedInOrAnonOk && $unratedOrReratable);
+			$ratable = ($elementId && $allowElementRating && $loggedInOrAnonOk && $unratedOrReratable);
 			if ($ratable) {
 				$classes .= ' sr-ratable';
 			}
 
-			$this->_includeCss();
-
-			$js = $this->_starJs($elementId, $key, $i, $allowElementRating);
-			$html .= '<span onclick="'.$js.'" class="'.$classes.'">'.$star.'</span>';
+			// Append star HTML
+			$onclick = 'onclick="'.$this->_starJs($elementId, $key, $i, $allowElementRating).'"';
+			$html .= '<span class="'.$classes.'" '.($elementId ? $onclick : '').'>'.$star.'</span>';
 		}
 
-
+		// Return compiled stars
 		return TemplateHelper::getRaw($html);
 	}
 
 	// Include CSS
 	private function _includeCss()
 	{
-		if (!in_array('css', $this->_disabled)) {
+		// If CSS is enabled and not yet included
+		if (!$this->_cssIncluded && !in_array('css', $this->_disabled)) {
+
+			// Include CSS resources
 			if (craft()->starRatings->settings['allowFontAwesome']) {
 				craft()->templates->includeCssResource('starratings/css/font-awesome.min.css');
 			}
 			craft()->templates->includeCssResource('starratings/css/starratings.css');
+
+			// Mark CSS as included
+			$this->_cssIncluded = true;
 		}
 	}
 
-	//
-	private function _starJs($elementId, $key, $value, $allowElementRating, $prefix = false)
-	{
-		$this->_includeJs();
-		$jsKey = ($key ? "'$key'" : 'null');
-		$allow = ($allowElementRating ? 'true' : 'false');
-		return ($prefix?'javascript:':'')."starRatings.rate($elementId, $jsKey, $value, $allow)";
-	}
-
-	//
+	// Include JS
 	private function _includeJs()
 	{
-		// Push star icons through to JS
-		if (!$this->_iconsJsIncluded) {
-			if (!in_array('js', $this->_disabled)) {
-				$iconJs = '';
-				$starIcons = array(
-					'starIconFull',
-					'starIconHalf',
-					'starIconEmpty',
-				);
-				foreach ($starIcons as $icon) {
-					$iconJs .= 'starRatings.'.$icon.' = '.json_encode(craft()->starRatings_rate->{$icon}).';'.PHP_EOL;
-				}
-				craft()->templates->includeJs($iconJs);
-			}
-			$this->_iconsJsIncluded = true;
-		}
-		if (!in_array('js', $this->_disabled)) {
+		// If JS is enabled and not yet included
+		if (!$this->_jsIncluded && !in_array('js', $this->_disabled)) {
+
+			// Include JS resources
 			craft()->templates->includeJsResource('starratings/js/sizzle.js');
 			craft()->templates->includeJsResource('starratings/js/superagent.js');
 			craft()->templates->includeJsResource('starratings/js/starratings.js');
+
+			// Set star icons
+			$iconJs = '';
+			$starIcons = array(
+				'starIconFull',
+				'starIconHalf',
+				'starIconEmpty',
+			);
+			foreach ($starIcons as $icon) {
+				$iconJs .= 'starRatings.'.$icon.' = '.json_encode(craft()->starRatings_rate->{$icon}).';'.PHP_EOL;
+			}
+			craft()->templates->includeJs($iconJs);
+
 			// Allow Rating Change
-			if (craft()->starRatings->settings['allowRatingChange'] && !$this->_changeAllowedJsIncluded) {
+			if (craft()->starRatings->settings['allowRatingChange']) {
 				craft()->templates->includeJs('starRatings.ratingChangeAllowed = true;');
-				$this->_changeAllowedJsIncluded = true;
 			}
+
 			// Dev Mode
-			if (craft()->config->get('devMode') && !$this->_devModeJsIncluded) {
+			if (craft()->config->get('devMode')) {
 				craft()->templates->includeJs('starRatings.devMode = true;');
-				$this->_devModeJsIncluded = true;
 			}
+
 			// CSRF
 			if (craft()->config->get('enableCsrfProtection') === true) {
 				if (!craft()->starRatings->csrfIncluded) {
@@ -173,21 +164,47 @@ window.csrfTokenValue = "'.craft()->request->getCsrfToken().'";
 					craft()->starRatings->csrfIncluded = true;
 				}
 			}
+
+			// Mark JS as included
+			$this->_jsIncluded = true;
 		}
+	}
+
+	// JS triggers for individual stars
+	private function _starJs($elementId, $key, $value, $allowElementRating, $prefix = false)
+	{
+		$this->_includeJs();
+		$jsKey = ($key ? "'$key'" : 'null');
+		$allow = ($allowElementRating ? 'true' : 'false');
+		return ($prefix?'javascript:':'')."starRatings.rate($elementId, $jsKey, $value, $allow)";
 	}
 
 	// ========================================================================
 
-	// Sort by "highest rated"
-	public function sort(ElementCriteriaModel $entries, $key = null)
+	// Output avgerage rating of stars
+	public function avgRating($elementId, $key = null)
 	{
-		return craft()->starRatings_query->orderByAvgRating($entries, $key);
+		// If element ID is invalid, log error
+		if (!$elementId || !is_numeric($elementId)) {
+			StarRatingsPlugin::log('Invalid element ID');
+			return 0;
+		}
+
+		return craft()->starRatings_query->avgRating($elementId, $key);
 	}
+
+	// ========================================================================
 
 	// Customize star icons
 	public function setStarIcons($starMap = array())
 	{
 		return craft()->starRatings_rate->setStarIcons($starMap);
+	}
+
+	// Sort by "highest rated"
+	public function sort(ElementCriteriaModel $entries, $key = null)
+	{
+		return craft()->starRatings_query->orderByAvgRating($entries, $key);
 	}
 
 	// Disable native CSS and/or JS
