@@ -18,6 +18,7 @@ class StarRatingsService extends BaseApplicationComponent
 		return $elementId.($key ? ':'.$key : '');
 	}
 
+	// Get history of anonymous user
 	public function getAnonymousHistory()
 	{
 		$this->anonymousHistory = craft()->userSession->getStateCookieValue($this->userCookie);

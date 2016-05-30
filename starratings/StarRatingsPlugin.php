@@ -7,7 +7,6 @@ class StarRatingsPlugin extends BasePlugin
 	public function init()
 	{
 		parent::init();
-		// Plugin Settings
 		craft()->starRatings->settings = $this->getSettings();
 		craft()->starRatings->getAnonymousHistory();
 	}
