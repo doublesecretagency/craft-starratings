@@ -77,7 +77,7 @@ class StarRatings_QueryService extends BaseApplicationComponent
 			->select('elementId')
 			->from('starratings_elementratings')
 			->where($conditions, array(':key' => $key))
-			->order('avgRating desc, totalVotes desc, dateUpdated desc')
+			->order('avgRating DESC, totalVotes DESC, dateUpdated DESC')
 		;
 		// Return elementIds
 		$elementIds = $query->queryColumn();
