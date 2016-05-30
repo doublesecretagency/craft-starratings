@@ -46,4 +46,27 @@ class StarRatingsService extends BaseApplicationComponent
 	}
 	*/
 
+	// ========================================================================= //
+
+	// Events
+	/**
+	 * Fires an 'onBeforeRate' event.
+	 *
+	 * @param Event $event
+	 */
+	public function onBeforeRate(Event $event)
+	{
+		$this->raiseEvent('onBeforeRate', $event);
+	}
+
+	/**
+	 * Fires an 'onRate' event.
+	 *
+	 * @param Event $event
+	 */
+	public function onRate(Event $event)
+	{
+		$this->raiseEvent('onRate', $event);
+	}
+
 }

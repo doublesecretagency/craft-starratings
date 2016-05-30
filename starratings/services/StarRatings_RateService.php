@@ -51,6 +51,13 @@ class StarRatings_RateService extends BaseApplicationComponent
 	//
 	public function rate($elementId, $key, $rating)
 	{
+		// Fire an 'onBeforeRate' event
+		craft()->starRatings->onBeforeRate(new Event($this, array(
+			'id'     => $elementId,
+			'key'    => $key,
+			'rating' => $rating,
+		)));
+
 		// If login is required
 		if (craft()->starRatings->settings['requireLogin']) {
 			// Update user history
@@ -67,6 +74,13 @@ class StarRatings_RateService extends BaseApplicationComponent
 		// Update element average rating
 		$this->_updateElementAvgRating($elementId, $key, $rating);
 		$this->_updateRatingLog($elementId, $key, $rating);
+
+		// Fire an 'onRate' event
+		craft()->starRatings->onRate(new Event($this, array(
+			'id'     => $elementId,
+			'key'    => $key,
+			'rating' => $rating,
+		)));
 
 		return array(
 			'id'     => $elementId,
