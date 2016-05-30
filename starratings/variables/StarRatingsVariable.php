@@ -131,7 +131,7 @@ class StarRatingsVariable
 			craft()->templates->includeJsResource('starratings/js/superagent.js');
 			craft()->templates->includeJsResource('starratings/js/starratings.js');
 
-			// Set star icons
+			// Set icons
 			$iconJs = '';
 			$starIcons = array(
 				'starIconFull',
@@ -195,10 +195,16 @@ window.csrfTokenValue = "'.craft()->request->getCsrfToken().'";
 
 	// ========================================================================
 
-	// Customize star icons
-	public function setStarIcons($starMap = array())
+	// Customize icons
+	public function setIcons($iconMap = array())
 	{
-		return craft()->starRatings_rate->setStarIcons($starMap);
+		return craft()->starRatings_rate->setIcons($iconMap);
+	}
+
+	// DEPRECATED: Use setIcons instead
+	public function setStarIcons($iconMap = array())
+	{
+		return $this->setIcons($iconMap);
 	}
 
 	// Sort by "highest rated"

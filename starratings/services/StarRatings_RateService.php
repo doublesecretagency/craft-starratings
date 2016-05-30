@@ -25,21 +25,27 @@ class StarRatings_RateService extends BaseApplicationComponent
 	}
 
 	//
-	private function _fa($starType)
+	private function _fa($iconType)
 	{
-		return '<i class="fa fa-'.$starType.'"></i>';
+		return '<i class="fa fa-'.$iconType.'"></i>';
 	}
 
 	//
-	public function setStarIcons($starMap = array())
+	public function setIcons($iconMap = array())
 	{
-		foreach ($starMap as $type => $html) {
+		foreach ($iconMap as $type => $html) {
 			switch ($type) {
 				case 'full'  : $this->starIconFull  = $html; break;
 				case 'half'  : $this->starIconHalf  = $html; break;
 				case 'empty' : $this->starIconEmpty = $html; break;
 			}
 		}
+	}
+
+	// DEPRECATED: Use setIcons instead
+	public function setStarIcons($iconMap = array())
+	{
+		return $this->setIcons($iconMap);
 	}
 
 	//
