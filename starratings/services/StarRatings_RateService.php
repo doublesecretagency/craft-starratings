@@ -53,9 +53,10 @@ class StarRatings_RateService extends BaseApplicationComponent
 	{
 		// Fire an 'onBeforeRate' event
 		craft()->starRatings->onBeforeRate(new Event($this, array(
-			'id'     => $elementId,
-			'key'    => $key,
-			'rating' => $rating,
+			'id'          => $elementId,
+			'key'         => $key,
+			'rating'      => $rating,
+			'changedFrom' => null,
 		)));
 
 		// If login is required
@@ -77,21 +78,31 @@ class StarRatings_RateService extends BaseApplicationComponent
 
 		// Fire an 'onRate' event
 		craft()->starRatings->onRate(new Event($this, array(
-			'id'     => $elementId,
-			'key'    => $key,
-			'rating' => $rating,
+			'id'          => $elementId,
+			'key'         => $key,
+			'rating'      => $rating,
+			'changedFrom' => null,
 		)));
 
 		return array(
-			'id'     => $elementId,
-			'key'    => $key,
-			'rating' => $rating,
+			'id'          => $elementId,
+			'key'         => $key,
+			'rating'      => $rating,
+			'changedFrom' => null,
 		);
 	}
 
 	//
 	public function changeRating($elementId, $key, $newRating, $oldRating)
 	{
+		// Fire an 'onBeforeRate' event
+		craft()->starRatings->onBeforeRate(new Event($this, array(
+			'id'          => $elementId,
+			'key'         => $key,
+			'rating'      => $newRating,
+			'changedFrom' => $oldRating,
+		)));
+
 		$this->_removeRatingFromDb($elementId, $key);
 		$this->_removeRatingFromCookie($elementId, $key);
 
@@ -111,10 +122,20 @@ class StarRatings_RateService extends BaseApplicationComponent
 		$this->_updateElementAvgRating($elementId, $key, $oldRating, true);
 		$this->_updateElementAvgRating($elementId, $key, $newRating);
 		$this->_updateRatingLog($elementId, $key, $newRating, true);
+
+		// Fire an 'onRate' event
+		craft()->starRatings->onRate(new Event($this, array(
+			'id'          => $elementId,
+			'key'         => $key,
+			'rating'      => $newRating,
+			'changedFrom' => $oldRating,
+		)));
+
 		return array(
-			'id'     => $elementId,
-			'key'    => $key,
-			'rating' => $newRating,
+			'id'          => $elementId,
+			'key'         => $key,
+			'rating'      => $newRating,
+			'changedFrom' => $oldRating,
 		);
 	}
 
