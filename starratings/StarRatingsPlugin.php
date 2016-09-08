@@ -7,8 +7,10 @@ class StarRatingsPlugin extends BasePlugin
 	public function init()
 	{
 		parent::init();
-		craft()->starRatings->settings = $this->getSettings();
-		craft()->starRatings->getAnonymousHistory();
+		if (!craft()->isConsole()) {
+			craft()->starRatings->settings = $this->getSettings();
+			craft()->starRatings->getAnonymousHistory();
+		}
 	}
 
 	public function getName()
@@ -28,7 +30,7 @@ class StarRatingsPlugin extends BasePlugin
 
 	public function getVersion()
 	{
-		return '1.2.2';
+		return '1.2.3';
 	}
 
 	public function getSchemaVersion()
