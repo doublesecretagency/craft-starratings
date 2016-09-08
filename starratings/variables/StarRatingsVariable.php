@@ -181,7 +181,7 @@ window.csrfTokenValue = "'.craft()->request->getCsrfToken().'";
 
 	// ========================================================================
 
-	// Output avgerage rating of stars
+	// Output average rating of stars
 	public function avgRating($elementId, $key = null)
 	{
 		// If element ID is invalid, log error
@@ -191,6 +191,18 @@ window.csrfTokenValue = "'.craft()->request->getCsrfToken().'";
 		}
 
 		return craft()->starRatings_query->avgRating($elementId, $key);
+	}
+
+	// Output total votes of element
+	public function totalVotes($elementId, $key = null)
+	{
+		// If element ID is invalid, log error
+		if (!$elementId || !is_numeric($elementId)) {
+			StarRatingsPlugin::log('Invalid element ID');
+			return 0;
+		}
+
+		return craft()->starRatings_query->totalVotes($elementId, $key);
 	}
 
 	// ========================================================================

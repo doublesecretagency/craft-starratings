@@ -15,6 +15,16 @@ class StarRatings_QueryService extends BaseApplicationComponent
 	}
 
 	//
+	public function totalVotes($elementId, $key)
+	{
+		$record = StarRatings_ElementRatingRecord::model()->findByAttributes(array(
+			'elementId' => $elementId,
+			'starKey'   => $key,
+		));
+		return ($record ? $record->totalVotes : 0);
+	}
+
+	//
 	public function userRating($elementId, $key)
 	{
 		// Defaults to unrated
