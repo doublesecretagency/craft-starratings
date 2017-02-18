@@ -42,27 +42,39 @@ class StarRatings_RateService extends BaseApplicationComponent
 		}
 	}
 
-	// DEPRECATED: Use setIcons instead
+	// DEPRECATED: Use `setIcons` instead
 	public function setStarIcons($iconMap = array())
 	{
 		return $this->setIcons($iconMap);
 	}
 
 	//
-	public function rate($elementId, $key, $rating)
+	public function rate($elementId, $key, $rating, $oldRating = null, $userId = null)
 	{
+		// Ensure the user ID is valid
+		$this->_validateUserId($userId);
+
+		// Whether rating was changed (or set from scratch)
+		$changed = (bool) $oldRating;
+
 		// Fire an 'onBeforeRate' event
 		craft()->starRatings->onBeforeRate(new Event($this, array(
 			'id'          => $elementId,
 			'key'         => $key,
 			'rating'      => $rating,
-			'changedFrom' => null,
+			'changedFrom' => $oldRating,
+			'userId'      => $userId,
 		)));
+
+		if ($changed) {
+			$this->_removeRatingFromDb($elementId, $key, $userId);
+			$this->_removeRatingFromCookie($elementId, $key);
+		}
 
 		// If login is required
 		if (craft()->starRatings->settings['requireLogin']) {
 			// Update user history
-			if (!$this->_updateUserHistoryDatabase($elementId, $key, $rating)) {
+			if (!$this->_updateUserHistoryDatabase($elementId, $key, $rating, $userId)) {
 				return $this->alreadyRatedMessage;
 			}
 		} else {
@@ -73,87 +85,50 @@ class StarRatings_RateService extends BaseApplicationComponent
 		}
 
 		// Update element average rating
-		$this->_updateElementAvgRating($elementId, $key, $rating);
-		$this->_updateRatingLog($elementId, $key, $rating);
-
-		// Fire an 'onRate' event
-		craft()->starRatings->onRate(new Event($this, array(
-			'id'          => $elementId,
-			'key'         => $key,
-			'rating'      => $rating,
-			'changedFrom' => null,
-		)));
-
-		return array(
-			'id'          => $elementId,
-			'key'         => $key,
-			'rating'      => $rating,
-			'changedFrom' => null,
-		);
-	}
-
-	//
-	public function changeRating($elementId, $key, $newRating, $oldRating)
-	{
-		// Fire an 'onBeforeRate' event
-		craft()->starRatings->onBeforeRate(new Event($this, array(
-			'id'          => $elementId,
-			'key'         => $key,
-			'rating'      => $newRating,
-			'changedFrom' => $oldRating,
-		)));
-
-		$this->_removeRatingFromDb($elementId, $key);
-		$this->_removeRatingFromCookie($elementId, $key);
-
-		// If login is required
-		if (craft()->starRatings->settings['requireLogin']) {
-			// Update user history
-			if (!$this->_updateUserHistoryDatabase($elementId, $key, $newRating)) {
-				return $this->alreadyRatedMessage;
-			}
-		} else {
-			// Update user cookie
-			if (!$this->_updateUserHistoryCookie($elementId, $key, $newRating)) {
-				return $this->alreadyRatedMessage;
-			}
+		if ($changed) {
+			$this->_updateElementAvgRating($elementId, $key, $oldRating, true);
 		}
-
-		$this->_updateElementAvgRating($elementId, $key, $oldRating, true);
-		$this->_updateElementAvgRating($elementId, $key, $newRating);
-		$this->_updateRatingLog($elementId, $key, $newRating, true);
+		$this->_updateElementAvgRating($elementId, $key, $rating);
+		$this->_updateRatingLog($elementId, $key, $rating, $changed, $userId);
 
 		// Fire an 'onRate' event
 		craft()->starRatings->onRate(new Event($this, array(
 			'id'          => $elementId,
 			'key'         => $key,
-			'rating'      => $newRating,
+			'rating'      => $rating,
 			'changedFrom' => $oldRating,
+			'userId'      => $userId,
 		)));
 
 		return array(
 			'id'          => $elementId,
 			'key'         => $key,
-			'rating'      => $newRating,
+			'rating'      => $rating,
 			'changedFrom' => $oldRating,
+			'userId'      => $userId,
 		);
 	}
 
-	//
-	private function _updateUserHistoryDatabase($elementId, $key, $rating)
+	// DEPRECATED: `Use `rate` instead
+	public function changeRating($elementId, $key, $rating, $oldRating = null, $userId = null)
 	{
-		$user = craft()->userSession->getUser();
+		$this->rate($elementId, $key, $rating, $oldRating, $userId);
+	}
+
+	//
+	private function _updateUserHistoryDatabase($elementId, $key, $rating, $userId)
+	{
 		// If user is not logged in, return false
-		if (!$user) {
+		if (!$userId) {
 			return false;
 		}
 		// Load existing element history
-		$record = StarRatings_UserHistoryRecord::model()->findByPK($user->id);
+		$record = StarRatings_UserHistoryRecord::model()->findByPK($userId);
 		$item = craft()->starRatings->setItemKey($elementId, $key);
 		// If no history exists, create new
 		if (!$record) {
 			$record = new StarRatings_UserHistoryRecord;
-			$record->id = $user->id;
+			$record->id = $userId;
 			$history = array();
 		// Else if user already rated element, return false
 		} else if (array_key_exists($item, $record->history)) {
@@ -238,14 +213,13 @@ class StarRatings_RateService extends BaseApplicationComponent
 	}
 
 	//
-	private function _updateRatingLog($elementId, $key, $rating, $changed = false)
+	private function _updateRatingLog($elementId, $key, $rating, $changed, $userId)
 	{
 		if (craft()->starRatings->settings['keepRatingLog']) {
-			$currentUser = craft()->userSession->getUser();
 			$record = new StarRatings_RatingLogRecord;
 			$record->elementId     = $elementId;
 			$record->starKey       = $key;
-			$record->userId        = ($currentUser ? $currentUser->id : null);
+			$record->userId        = $userId;
 			$record->ipAddress     = $_SERVER['REMOTE_ADDR'];
 			$record->ratingValue   = $rating;
 			$record->ratingChanged = (int) $changed;
@@ -254,11 +228,10 @@ class StarRatings_RateService extends BaseApplicationComponent
 	}
 
 	//
-	private function _removeRatingFromDb($elementId, $key)
+	private function _removeRatingFromDb($elementId, $key, $userId)
 	{
-		$user = craft()->userSession->getUser();
-		if ($user) {
-			$record = StarRatings_UserHistoryRecord::model()->findByPK($user->id);
+		if ($userId) {
+			$record = StarRatings_UserHistoryRecord::model()->findByPK($userId);
 			if ($record) {
 				// Remove from database history
 				$historyDb = $record->history;
@@ -282,6 +255,30 @@ class StarRatings_RateService extends BaseApplicationComponent
 			unset($historyCookie[$item]);
 			$this->_saveUserHistoryCookie();
 		}
+	}
+
+	// $userId can be valid user ID or UserModel
+	private function _validateUserId(&$userId)
+	{
+		// No user by default
+		$user = null;
+
+		// Handle user ID
+		if (!$userId) {
+			// Default to logged in user
+			$user = craft()->userSession->getUser();
+		} else {
+			if (is_numeric($userId)) {
+				// Get valid UserModel
+				$user = craft()->users->getUserById($userId);
+			} else if (is_object($userId) && is_a($userId, 'Craft\\UserModel')) {
+				// It's already a UserModel
+				$user = $userId;
+			}
+		}
+
+		// Get user ID, or rate anonymously
+		$userId = ($user ? $user->id : null);
 	}
 
 }
