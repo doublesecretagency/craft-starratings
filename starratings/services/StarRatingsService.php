@@ -46,6 +46,30 @@ class StarRatingsService extends BaseApplicationComponent
 	}
 	*/
 
+	// $userId can be valid user ID or UserModel
+	public function validateUserId(&$userId)
+	{
+		// No user by default
+		$user = null;
+
+		// Handle user ID
+		if (!$userId) {
+			// Default to logged in user
+			$user = craft()->userSession->getUser();
+		} else {
+			if (is_numeric($userId)) {
+				// Get valid UserModel
+				$user = craft()->users->getUserById($userId);
+			} else if (is_object($userId) && is_a($userId, 'Craft\\UserModel')) {
+				// It's already a UserModel
+				$user = $userId;
+			}
+		}
+
+		// Get user ID, or rate anonymously
+		$userId = ($user ? $user->id : null);
+	}
+
 	// ========================================================================= //
 
 	// Events

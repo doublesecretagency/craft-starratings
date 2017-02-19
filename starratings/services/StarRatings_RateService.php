@@ -52,10 +52,10 @@ class StarRatings_RateService extends BaseApplicationComponent
 	public function rate($elementId, $key, $rating, $oldRating = null, $userId = null)
 	{
 		// Ensure the user ID is valid
-		$this->_validateUserId($userId);
+		craft()->starRatings->validateUserId($userId);
 
 		// Whether rating was changed (or set from scratch)
-		$changed = (bool) $oldRating;
+		$changed = $this->_wasChanged($elementId, $key, $rating, $oldRating, $userId);
 
 		// Fire an 'onBeforeRate' event
 		craft()->starRatings->onBeforeRate(new Event($this, array(
@@ -258,27 +258,14 @@ class StarRatings_RateService extends BaseApplicationComponent
 	}
 
 	// $userId can be valid user ID or UserModel
-	private function _validateUserId(&$userId)
+	private function _wasChanged($elementId, $key, $rating, $oldRating, $userId)
 	{
-		// No user by default
-		$user = null;
-
-		// Handle user ID
-		if (!$userId) {
-			// Default to logged in user
-			$user = craft()->userSession->getUser();
-		} else {
-			if (is_numeric($userId)) {
-				// Get valid UserModel
-				$user = craft()->users->getUserById($userId);
-			} else if (is_object($userId) && is_a($userId, 'Craft\\UserModel')) {
-				// It's already a UserModel
-				$user = $userId;
-			}
+		// If login required, get old rating from database
+		if (craft()->starRatings->settings['requireLogin']) {
+			$oldRating = craft()->starRatings_query->userRating($elementId, $key, $userId);
 		}
-
-		// Get user ID, or rate anonymously
-		$userId = ($user ? $user->id : null);
+		// Does old rating exist, and is different
+		return ($oldRating && ($oldRating != $rating));
 	}
 
 }

@@ -10,7 +10,7 @@ class StarRatingsVariable
 	private $_jsIncluded  = false;
 
 	// Render stars
-	public function stars($elementId, $key = null, $allowElementRating = true)
+	public function stars($elementId, $key = null, $allowElementRating = true, $userId = null)
 	{
 		// If element ID is invalid, return error
 		if (!$elementId || !is_numeric($elementId)) {
@@ -25,7 +25,7 @@ class StarRatingsVariable
 
 		// Get ratings
 		$avgRating  = craft()->starRatings_query->avgRating($elementId, $key);
-		$userRating = craft()->starRatings_query->userRating($elementId, $key);
+		$userRating = craft()->starRatings_query->userRating($elementId, $key, $userId);
 
 		// Draw stars
 		return $this->_drawStars($avgRating, $userRating, $elementId, $key, $allowElementRating);

@@ -25,14 +25,17 @@ class StarRatings_QueryService extends BaseApplicationComponent
 	}
 
 	//
-	public function userRating($elementId, $key)
+	public function userRating($elementId, $key, $userId = null)
 	{
+		// Ensure the user ID is valid
+		craft()->starRatings->validateUserId($userId);
+
 		// Defaults to unrated
 		$userRating = 0;
 
 		// Get user vote history
 		if (craft()->starRatings->settings['requireLogin']) {
-			$history = craft()->starRatings_query->userHistory();
+			$history = $this->userHistory($userId);
 		} else {
 			$history = craft()->starRatings->anonymousHistory;
 		}
@@ -47,11 +50,10 @@ class StarRatings_QueryService extends BaseApplicationComponent
 	}
 
 	//
-	public function userHistory()
+	public function userHistory($userId = null)
 	{
-		$user = craft()->userSession->getUser();
-		if ($user) {
-			$record = StarRatings_UserHistoryRecord::model()->findByPK($user->id);
+		if ($userId) {
+			$record = StarRatings_UserHistoryRecord::model()->findByPK($userId);
 			if ($record) {
 				return $record->history;
 			}
