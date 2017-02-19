@@ -9,37 +9,35 @@ class StarRatingsController extends BaseController
 	public function actionRate()
 	{
 		$this->requireAjaxRequest();
-		$loggedIn = craft()->userSession->user;
+
+		// Get current user & login requirement
+		$currentUser   = craft()->userSession->user;
 		$loginRequired = craft()->starRatings->settings['requireLogin'];
-		if ($loginRequired && !$loggedIn) {
-			$this->returnJson('You must be logged in to rate this element.');
+
+		// Check if login is required
+		if ($loginRequired && !$currentUser) {
+
+			// Return "login required" message
+			$this->returnJson(craft()->starRatings_rate->messageLoginRequired);
+
 		} else {
+
+			// Get POST values
 			$elementId = craft()->request->getPost('id');
-			$key = craft()->request->getPost('key');
-			$rating = craft()->request->getPost('rating');
-			$response = craft()->starRatings_rate->rate($elementId, $key, $rating);
+			$key       = craft()->request->getPost('key');
+			$rating    = craft()->request->getPost('rating');
+
+			// Cast rating
+			$response = craft()->starRatings_rate->rate($elementId, $key, $rating, $currentUser);
 			$this->returnJson($response);
+
 		}
 	}
 
-	// Change rating on specified element
+	// DEPRECATED: Use `actionRate` instead
 	public function actionChange()
 	{
-		$this->requireAjaxRequest();
-		$loggedIn = craft()->userSession->user;
-		$loginRequired = craft()->starRatings->settings['requireLogin'];
-		if ($loginRequired && !$loggedIn) {
-			$this->returnJson('You must be logged in to rate this element.');
-		} else if (!craft()->starRatings->settings['allowRatingChange']) {
-			$this->returnJson('Unable to change rating. Rate changing is disabled.');
-		} else {
-			$elementId = craft()->request->getPost('id');
-			$key = craft()->request->getPost('key');
-			$newRating = craft()->request->getPost('rating');
-			$oldRating = craft()->request->getPost('oldRating');
-			$response = craft()->starRatings_rate->changeRating($elementId, $key, $newRating, $oldRating);
-			$this->returnJson($response);
-		}
+		return $this->actionRate();
 	}
 
 }

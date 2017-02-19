@@ -8,7 +8,9 @@ class StarRatings_RateService extends BaseApplicationComponent
 	public $starIconHalf;
 	public $starIconEmpty;
 
-	public $alreadyRatedMessage = 'You have already rated this element.';
+	public $messageLoginRequired    = 'You must be logged in to rate this element.';
+	public $messageAlreadyRated     = 'You have already rated this element.';
+	public $messageChangeDisallowed = 'Unable to change rating. Rate changing is disabled.';
 
 	//
 	public function init()
@@ -49,70 +51,82 @@ class StarRatings_RateService extends BaseApplicationComponent
 	}
 
 	//
-	public function rate($elementId, $key, $rating, $oldRating = null, $userId = null)
+	public function rate($elementId, $key, $rating, $userId = null)
 	{
 		// Ensure the user ID is valid
 		craft()->starRatings->validateUserId($userId);
 
-		// Whether rating was changed (or set from scratch)
-		$changed = $this->_wasChanged($elementId, $key, $rating, $oldRating, $userId);
+		// Get old rating by this user (if exists)
+		$oldRating = craft()->starRatings_query->userRating($elementId, $key, $userId);
 
-		// Fire an 'onBeforeRate' event
-		craft()->starRatings->onBeforeRate(new Event($this, array(
-			'id'          => $elementId,
-			'key'         => $key,
-			'rating'      => $rating,
-			'changedFrom' => $oldRating,
-			'userId'      => $userId,
-		)));
+		// Does old rating exist, and is it different?
+		$changed = ($oldRating && ($oldRating != $rating));
 
-		if ($changed) {
-			$this->_removeRatingFromDb($elementId, $key, $userId);
-			$this->_removeRatingFromCookie($elementId, $key);
+		// Is change allowed?
+		$changeAllowed = craft()->starRatings->settings['allowRatingChange'];
+
+		// Ensure change is allowed
+		if ($changed && !$changeAllowed) {
+			return $this->messageChangeDisallowed;
 		}
 
-		// If login is required
-		if (craft()->starRatings->settings['requireLogin']) {
-			// Update user history
-			if (!$this->_updateUserHistoryDatabase($elementId, $key, $rating, $userId)) {
-				return $this->alreadyRatedMessage;
-			}
-		} else {
-			// Update user cookie
-			if (!$this->_updateUserHistoryCookie($elementId, $key, $rating)) {
-				return $this->alreadyRatedMessage;
-			}
-		}
-
-		// Update element average rating
-		if ($changed) {
-			$this->_updateElementAvgRating($elementId, $key, $oldRating, true);
-		}
-		$this->_updateElementAvgRating($elementId, $key, $rating);
-		$this->_updateRatingLog($elementId, $key, $rating, $changed, $userId);
-
-		// Fire an 'onRate' event
-		craft()->starRatings->onRate(new Event($this, array(
-			'id'          => $elementId,
-			'key'         => $key,
-			'rating'      => $rating,
-			'changedFrom' => $oldRating,
-			'userId'      => $userId,
-		)));
-
-		return array(
+		// Prep return data
+		$returnData = array(
 			'id'          => $elementId,
 			'key'         => $key,
 			'rating'      => $rating,
 			'changedFrom' => $oldRating,
 			'userId'      => $userId,
 		);
+
+		// Fire an 'onBeforeRate' event
+		craft()->starRatings->onBeforeRate(new Event($this, $returnData));
+
+		// Cast element rating. Get potential error message.
+		$message = $this->_rateElement($elementId, $key, $rating, $userId, $changed, $oldRating);
+
+		// Fire an 'onRate' event
+		craft()->starRatings->onRate(new Event($this, $returnData));
+
+		// Return error message or data
+		return ($message ? $message : $returnData);
 	}
 
-	// DEPRECATED: `Use `rate` instead
+	// DEPRECATED: Use `rate` instead
 	public function changeRating($elementId, $key, $rating, $oldRating = null, $userId = null)
 	{
-		$this->rate($elementId, $key, $rating, $oldRating, $userId);
+		$this->rate($elementId, $key, $rating, $userId);
+	}
+
+	//
+	private function _rateElement($elementId, $key, $rating, $userId, $changed, $oldRating)
+	{
+		// If changed, remove existing rating
+		if ($changed) {
+			$this->_removeRatingFromDb($elementId, $key, $userId);
+			$this->_removeRatingFromCookie($elementId, $key);
+			$this->_updateElementAvgRating($elementId, $key, $oldRating, true);
+		}
+
+		// If login is required
+		if (craft()->starRatings->settings['requireLogin']) {
+			// Update user history
+			if (!$this->_updateUserHistoryDatabase($elementId, $key, $rating, $userId)) {
+				return $this->messageAlreadyRated;
+			}
+		} else {
+			// Update user cookie
+			if (!$this->_updateUserHistoryCookie($elementId, $key, $rating)) {
+				return $this->messageAlreadyRated;
+			}
+		}
+
+		// Update element average rating
+		$this->_updateElementAvgRating($elementId, $key, $rating);
+		$this->_updateRatingLog($elementId, $key, $rating, $userId, $changed);
+
+		// No message by default
+		return null;
 	}
 
 	//
@@ -213,7 +227,7 @@ class StarRatings_RateService extends BaseApplicationComponent
 	}
 
 	//
-	private function _updateRatingLog($elementId, $key, $rating, $changed, $userId)
+	private function _updateRatingLog($elementId, $key, $rating, $userId, $changed)
 	{
 		if (craft()->starRatings->settings['keepRatingLog']) {
 			$record = new StarRatings_RatingLogRecord;
@@ -255,17 +269,6 @@ class StarRatings_RateService extends BaseApplicationComponent
 			unset($historyCookie[$item]);
 			$this->_saveUserHistoryCookie();
 		}
-	}
-
-	// $userId can be valid user ID or UserModel
-	private function _wasChanged($elementId, $key, $rating, $oldRating, $userId)
-	{
-		// If login required, get old rating from database
-		if (craft()->starRatings->settings['requireLogin']) {
-			$oldRating = craft()->starRatings_query->userRating($elementId, $key, $userId);
-		}
-		// Does old rating exist, and is different
-		return ($oldRating && ($oldRating != $rating));
 	}
 
 }

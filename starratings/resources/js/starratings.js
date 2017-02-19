@@ -8,43 +8,19 @@ var starRatings = {
 	rate: function (elementId, key, value, allowElementRating) {
 		// Set stars
 		var elementStars = Sizzle('.sr-element-'+this._setItemKey(elementId, key));
-		var alreadyRated = Sizzle('.sr-user-rating.sr-element-'+this._setItemKey(elementId, key));
 		// Set data
 		var data = {
 			'id': elementId,
 			'key': key,
 			'rating': value
 		};
-		// Initialize action
-		var action = null;
-		// If element rating is not allowed
-		if (!allowElementRating) {
-			if (this.devMode) {
-				console.log('Rating this element is not permitted.');
-			}
-		} else {
-			// If element has not been rated yet
-			if (!alreadyRated.length) {
-				// Rate new element
-				action = '/actions/starRatings/rate';
-			} else if (this.ratingChangeAllowed) {
-				// Change rating
-				action = '/actions/starRatings/change';
-				data.oldRating = alreadyRated.length;
-			} else {
-				// Rating changes are not allowed
-				if (this.devMode) {
-					console.log('Rating changes are disabled.');
-				}
-			}
-		}
-		// If action specified
-		if (action) {
+		// If element rating is allowed
+		if (allowElementRating) {
 			// Append CSRF Token
 			data[window.csrfTokenName] = window.csrfTokenValue;
 			// Vote via AJAX
 			ajax
-				.post(action)
+				.post('/actions/starRatings/rate')
 				.send(data)
 				.type('form')
 				.set('X-Requested-With','XMLHttpRequest')
@@ -81,6 +57,10 @@ var starRatings = {
 					}
 				})
 			;
+		} else {
+			if (this.devMode) {
+				console.log('Rating this element is not permitted.');
+			}
 		}
 	},
 	// Generate combined item key
