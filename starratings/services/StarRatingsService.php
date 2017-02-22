@@ -10,6 +10,7 @@ class StarRatingsService extends BaseApplicationComponent
 	public $userCookieLifespan = 315569260; // Lasts 10 years
 	public $anonymousHistory;
 
+	public $backendField = false;
 	public $csrfIncluded = false;
 
 	// Generate combined item key

@@ -54,6 +54,11 @@ class StarRatingsVariable
 			// Initialize star classes
 			$classes = 'sr-star sr-value-'.$i;
 
+			// If back-end field, use larger stars
+			if (craft()->starRatings->backendField) {
+				$classes .= ' fa-2x';
+			}
+
 			if (!$userRating && ($i <= $avgRating)) {
 				// Average rating
 				$star = craft()->starRatings_rate->starIconFull;
