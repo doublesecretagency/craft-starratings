@@ -1,14 +1,22 @@
-{% import "_includes/forms" as forms %}
+{% import '_includes/forms' as forms %}
 
-{#
-{{ forms.textField({
-	id: id ~ 'someField',
-	class: 'nicetext',
-	name: name ~ '[someField]',
-	value: values.someField,
-	errors: values.getErrors('someField'),
-	required: false,
+{{ forms.selectField({
+	label: 'Stars Behavior'|t,
+	id: 'behavior',
+	name: 'behavior',
+	options: {
+		'ratable': 'Element is ratable while editing',
+		'showAvg': 'Show average of front-end ratings',
+	},
+	value: settings.behavior,
 }) }}
-#}
 
-twinkle little stars
+{{ forms.textField({
+	label: 'Stars Key'|t,
+	instructions: 'If you have multiple rating types on the same element, specify a unique key here. <a href="https://craftpl.us/plugins/star-ratings/docs/multiple-ratings-for-an-element" target="_blank">Read more...</a>'|t,
+	id: 'starKey',
+	name: 'starKey',
+	value: settings.starKey,
+	errors: settings.getErrors('starKey'),
+	class: 'code',
+}) }}

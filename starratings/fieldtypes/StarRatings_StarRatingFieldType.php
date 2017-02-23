@@ -16,7 +16,15 @@ class StarRatings_StarRatingFieldType extends BaseFieldType
 	 */
 	public function defineContentAttribute()
 	{
-		return AttributeType::Mixed;
+		return null;
+	}
+
+	protected function defineSettings()
+	{
+		return array(
+			'behavior'    => array(AttributeType::String, 'default' => 'ratable'),
+			'starKey'     => array(AttributeType::String, 'default' => null),
+		);
 	}
 
 	/**
@@ -57,7 +65,9 @@ class StarRatings_StarRatingFieldType extends BaseFieldType
 			// 'id' => $id,
 			// 'name' => $name,
 			// 'namespaceId' => $namespacedId,
-			// 'values' => $value
+			// 'values' => $value,
+			'settings' => $this->getSettings(),
+			'avgRating' => 2,
 		);
 
 		return craft()->templates->render('starratings/field', $variables);
