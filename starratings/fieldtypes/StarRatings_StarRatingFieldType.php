@@ -16,14 +16,14 @@ class StarRatings_StarRatingFieldType extends BaseFieldType
 	 */
 	public function defineContentAttribute()
 	{
-		return null;
+		return AttributeType::Mixed;
 	}
 
 	protected function defineSettings()
 	{
 		return array(
-			'behavior'    => array(AttributeType::String, 'default' => 'ratable'),
-			'starKey'     => array(AttributeType::String, 'default' => null),
+			'behavior' => array(AttributeType::String, 'default' => 'ratable'),
+			'starKey'  => array(AttributeType::String, 'default' => null),
 		);
 	}
 
@@ -35,6 +35,30 @@ class StarRatings_StarRatingFieldType extends BaseFieldType
 	public function getInputHtml($name, $value)
 	{
 		craft()->starRatings->backendField = true;
+
+		$settings = $this->getSettings();
+
+		$elementId = $this->element->id;
+		$starKey   = ($settings->starKey ? $settings->starKey : null);
+
+		if ('showAvg' == $settings->behavior) {
+			$variables = array(
+				'avgRating' => craft()->starRatings_query->avgRating($elementId, $starKey),
+			);
+			return craft()->templates->render('starratings/field/avg-rating', $variables);
+		} else {
+			$variables = array(
+				// 'id' => $id,
+				// 'name' => $name,
+				// 'namespaceId' => $namespacedId,
+				// 'values' => $value,
+				// 'settings' => ,
+				'avgRating' => 2,
+			);
+			return craft()->templates->render('starratings/field/ratable', $variables);
+		}
+
+
 
 		// if (!$value)
 		// 	$value = new StarRatings_StarRatingModel();
@@ -61,21 +85,12 @@ class StarRatings_StarRatingFieldType extends BaseFieldType
 
 /* -- Variables to pass down to our rendered template */
 
-		$variables = array(
-			// 'id' => $id,
-			// 'name' => $name,
-			// 'namespaceId' => $namespacedId,
-			// 'values' => $value,
-			'settings' => $this->getSettings(),
-			'avgRating' => 2,
-		);
 
-		return craft()->templates->render('starratings/field', $variables);
 	}
 
 	public function getSettingsHtml()
 	{
-		return craft()->templates->render('starratings/field-settings', array(
+		return craft()->templates->render('starratings/field/settings', array(
 			'settings' => $this->getSettings()
 		));
 	}

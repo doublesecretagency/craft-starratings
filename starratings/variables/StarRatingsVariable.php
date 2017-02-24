@@ -31,6 +31,16 @@ class StarRatingsVariable
 		return $this->_drawStars($avgRating, $userRating, $elementId, $key, $allowElementRating);
 	}
 
+	// Render stars
+	public function starsField($elementId, $key = null, $allowElementRating = true, $userId = null)
+	{
+		// Get rating
+		$fieldRating = craft()->starRatings_query->fieldRating($elementId, $key);
+
+		// Draw stars
+		return $this->_drawStars(0, $fieldRating);
+	}
+
 	// Render locked stars
 	public function lockedStars($rating)
 	{
