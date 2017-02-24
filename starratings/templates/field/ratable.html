@@ -1,5 +1,13 @@
-{{ craft.starRatings.stars(1) }}
+{% import '_includes/forms' as forms %}
 
-<p>Convert this to a very basic Craft field! (numeric)</p>
-<p>You don't need all the fancy shit SR provides. It's major overkill, and would add confusion</p>
-<p>Just save a simple numeric value in the `content` table.</p>
+{{ craft.starRatings.lockedStars(value) }}
+
+{{ forms.hidden({
+	id: name,
+	name: name,
+	value: value,
+}) }}
+
+{#
+$('input#fields-stars').val(newValue);
+#}

@@ -4,17 +4,21 @@ namespace Craft;
 class StarRatings_QueryService extends BaseApplicationComponent
 {
 
-	//
-	public function fieldRating($elementId, $key)
-	{
 
-		// $record = StarRatings_ElementRatingRecord::model()->findByAttributes(array(
-		// 	'elementId' => $elementId,
-		// 	'starKey'   => $key,
-		// ));
-		// return ($record ? $record->avgRating : 0);
-		return 3;
-	}
+
+// //
+// public function fieldRating($elementId, $key)
+// {
+
+// 	// $record = StarRatings_ElementRatingRecord::model()->findByAttributes(array(
+// 	// 	'elementId' => $elementId,
+// 	// 	'starKey'   => $key,
+// 	// ));
+// 	// return ($record ? $record->avgRating : 0);
+// 	return 3;
+// }
+
+
 
 	//
 	public function avgRating($elementId, $key)

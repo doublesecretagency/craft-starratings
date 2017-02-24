@@ -48,15 +48,12 @@ class StarRatings_StarRatingFieldType extends BaseFieldType
 			return craft()->templates->render('starratings/field/avg-rating', $variables);
 		} else {
 			$variables = array(
-				// 'id' => $id,
-				// 'name' => $name,
-				// 'namespaceId' => $namespacedId,
-				// 'values' => $value,
-				// 'settings' => ,
-				'avgRating' => 2,
+				'name'  => $name,
+				'value' => $value,
 			);
 			return craft()->templates->render('starratings/field/ratable', $variables);
 		}
+
 
 
 
@@ -84,6 +81,8 @@ class StarRatings_StarRatingFieldType extends BaseFieldType
 		// craft()->templates->includeJs("$('#{$namespacedId}-field').StarRatings_StarRatingFieldType(" . $jsonVars . ");");
 
 /* -- Variables to pass down to our rendered template */
+
+
 
 
 	}
