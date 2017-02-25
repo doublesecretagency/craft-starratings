@@ -68,15 +68,22 @@ class StarRatings_StarRatingFieldType extends BaseFieldType
 	}
 
 	/**
+	 * As the data enters the database
+	 *
 	 * @param mixed $value
 	 * @return mixed
 	 */
 	public function prepValueFromPost($value)
 	{
+		if (!is_numeric($value)) {
+			$value = null;
+		}
 		return $value;
 	}
 
 	/**
+	 * As the data leaves the database
+	 *
 	 * @param mixed $value
 	 * @return mixed
 	 */
