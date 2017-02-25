@@ -31,24 +31,18 @@ class StarRatingsVariable
 		return $this->_drawStars($avgRating, $userRating, $elementId, $key, $allowElementRating);
 	}
 
-
-
-// // Render stars
-// public function starsField($elementId, $key = null, $allowElementRating = true, $userId = null)
-// {
-// 	// Get rating
-// 	$fieldRating = craft()->starRatings_query->fieldRating($elementId, $key);
-
-// 	// Draw stars
-// 	return $this->_drawStars(0, $fieldRating);
-// }
-
-
-
 	// Render locked stars
 	public function lockedStars($rating)
 	{
 		return $this->_drawStars($rating);
+	}
+
+	// Render field stars
+	public function fieldStars($value)
+	{
+		craft()->templates->includeCssResource('starratings/css/field.css');
+		craft()->templates->includeJsResource('starratings/js/field.js');
+		return $this->_drawStars(0, $value);
 	}
 
 	// Draw stars
@@ -114,8 +108,9 @@ class StarRatingsVariable
 			}
 
 			// Append star HTML
+			$data = 'data-rating="'.$i.'"';
 			$onclick = 'onclick="'.$this->_starJs($elementId, $key, $i, $allowElementRating).'"';
-			$html .= '<span class="'.$classes.'" '.($elementId ? $onclick : '').'>'.$star.'</span>';
+			$html .= '<span class="'.$classes.'" '.$data.' '.($elementId ? $onclick : '').'>'.$star.'</span>';
 		}
 
 		// Return compiled stars

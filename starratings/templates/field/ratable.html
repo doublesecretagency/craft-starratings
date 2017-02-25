@@ -1,13 +1,9 @@
 {% import '_includes/forms' as forms %}
 
-{{ craft.starRatings.lockedStars(value) }}
+{{ craft.starRatings.fieldStars(value) }}
 
 {{ forms.hidden({
 	id: name,
 	name: name,
 	value: value,
 }) }}
-
-{#
-$('input#fields-stars').val(newValue);
-#}

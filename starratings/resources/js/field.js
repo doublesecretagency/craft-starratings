@@ -1,43 +1,24 @@
-;(function ( $, window, document, undefined ) {
+$('body').on('click', '.sr-star', function () {
 
-	var pluginName = "StarRatings_StarRatingFieldType",
-		defaults = {
-		};
+	// Get info
+	var starValue = $(this).data('rating');
+	var $allStars = $(this).parent('.input').children('.sr-star');
 
-	// Plugin constructor
-	function Plugin( element, options ) {
-		this.element = element;
-
-		this.options = $.extend( {}, defaults, options) ;
-
-		this._defaults = defaults;
-		this._name = pluginName;
-
-		this.init();
-	}
-
-	Plugin.prototype = {
-
-		init: function(id) {
-			var _this = this;
-
-			$(function () {
-
-/* -- _this.options gives us access to the $jsonVars that our FieldType passed down to us */
-
-			});
+	// Mark selected stars
+	$allStars.each(function () {
+		$(this).removeClass('sr-user-rating sr-unrated');
+		$(this).find('i').removeClass('fa-star fa-star-o');
+		var starRating = $(this).data('rating');
+		if (starRating <= starValue) {
+			$(this).addClass('sr-user-rating');
+			$(this).find('i').addClass('fa-star');
+		} else {
+			$(this).addClass('sr-unrated');
+			$(this).find('i').addClass('fa-star-o');
 		}
-	};
+	});
 
-	// A really lightweight plugin wrapper around the constructor,
-	// preventing against multiple instantiations
-	$.fn[pluginName] = function ( options ) {
-		return this.each(function () {
-			if (!$.data(this, "plugin_" + pluginName)) {
-				$.data(this, "plugin_" + pluginName,
-				new Plugin( this, options ));
-			}
-		});
-	};
+	// Set input value
+	$(this).siblings('input').val(starValue);
 
-})( jQuery, window, document );
+});
