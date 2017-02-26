@@ -37,12 +37,23 @@ class StarRatingsVariable
 		return $this->_drawStars($rating);
 	}
 
-	// Render field stars
-	public function fieldStars($value)
+	// Render CP field stars
+	public function cpField($value)
 	{
 		craft()->templates->includeCssResource('starratings/css/field.css');
 		craft()->templates->includeJsResource('starratings/js/field.js');
 		return $this->_drawStars(0, $value);
+	}
+
+	// Render form field stars
+	public function formField($name, $value)
+	{
+		craft()->templates->includeCssResource('starratings/css/field.css');
+		craft()->templates->includeJsResource('starratings/js/field.js');
+		$stars = $this->_drawStars(0, $value);
+		$input = '<input type="hidden" id="'.$name.'" name="'.$name.'" class="pineapple" value="'.$value.'">';
+		$div = '<div id="container-'.$name.'">'.$stars.$input.'</div>';
+		return TemplateHelper::getRaw($div);
 	}
 
 	// Draw stars

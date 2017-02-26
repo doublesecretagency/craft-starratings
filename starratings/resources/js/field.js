@@ -2,7 +2,7 @@ $('body').on('click', '.sr-star', function () {
 
 	// Get info
 	var starValue = $(this).data('rating');
-	var $allStars = $(this).parent('.input').children('.sr-star');
+	var $allStars = $(this).parent('div').children('.sr-star');
 
 	// Mark selected stars
 	$allStars.each(function () {
