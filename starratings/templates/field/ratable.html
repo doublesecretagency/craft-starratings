@@ -1,13 +1,1 @@
-{#
-{% import '_includes/forms' as forms %}
-
-{{ craft.starRatings.cpField(value) }}
-
-{{ forms.hidden({
-	id: name,
-	name: name,
-	value: value,
-}) }}
-#}
-
 {{ craft.starRatings.formField(name, value) }}

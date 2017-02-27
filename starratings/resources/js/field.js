@@ -6,6 +6,28 @@ function hasClass(el, className) {
 	}
 }
 
+// https://jaketrent.com/post/addremove-classes-raw-javascript/
+function addClass(el, className) {
+	if (el.classList) {
+		el.classList.add(className);
+	} else if (!hasClass(el, className)) {
+		el.className += " " + className;
+	}
+}
+
+// https://jaketrent.com/post/addremove-classes-raw-javascript/
+function removeClass(el, className) {
+	if (el.classList) {
+		el.classList.remove(className);
+	} else if (hasClass(el, className)) {
+		var reg = new RegExp('(\\s|^)' + className + '(\\s|$)');
+		el.className=el.className.replace(reg, ' ');
+	}
+}
+
+// =============================================================================== //
+
+// On click event for stars
 document.addEventListener('click', function (e) {
 
 	// Get elements
@@ -15,32 +37,54 @@ document.addEventListener('click', function (e) {
 	// Check click target
 	if (hasClass(star, 'sr-star')) {
 
+		// Get new rating
 		var starValue = star.getAttribute('data-rating');
+
+		// Get all stars in group
 		var starGroup = star.parentNode.children;
 
-		// console.log(starGroup);
-
+		// Loop through all stars in group
 		for (i in starGroup) {
+
+			// Get individual element
 			var s = starGroup[i];
-			if (hasClass(s, 'sr-star')) {
-				console.log(s);
+
+			// If element is an input
+			if (hasClass(s, 'sr-star-input')) {
+
+				// Set input value
+				s.value = starValue;
+
+			// Else if element is a star
+			} else if (hasClass(s, 'sr-star')) {
+
+				// Get star value
+				var fa = s.childNodes[0];
+				var sValue = s.getAttribute('data-rating');
+
+				// Get existing classes
+				var starClasses = s.className;
+				var faClasses   = fa.className;
+
+				// Remove existing classes
+				removeClass(s,  'sr-user-rating');
+				removeClass(s,  'sr-unrated');
+				removeClass(fa, 'fa-star');
+				removeClass(fa, 'fa-star-o');
+
+				// Add appropriate classes
+				if (sValue <= starValue) {
+					addClass(s,  'sr-user-rating');
+					addClass(fa, 'fa-star');
+				} else {
+					addClass(s,  'sr-unrated');
+					addClass(fa, 'fa-star-o');
+				}
+
 			}
+
 		}
 
 	}
 
 });
-
-// 		$(this).removeClass('sr-user-rating sr-unrated');
-// 		$(this).find('i').removeClass('fa-star fa-star-o');
-// 		var starRating = $(this).data('rating');
-// 		if (starRating <= starValue) {
-// 			$(this).addClass('sr-user-rating');
-// 			$(this).find('i').addClass('fa-star');
-// 		} else {
-// 			$(this).addClass('sr-unrated');
-// 			$(this).find('i').addClass('fa-star-o');
-// 		}
-
-// 	// Set input value
-// 	$(this).siblings('input').val(starValue);

@@ -37,22 +37,26 @@ class StarRatingsVariable
 		return $this->_drawStars($rating);
 	}
 
-	// Render CP field stars
-	public function cpField($value)
-	{
-		craft()->templates->includeCssResource('starratings/css/field.css');
-		craft()->templates->includeJsResource('starratings/js/field.js');
-		return $this->_drawStars(0, $value);
-	}
-
 	// Render form field stars
-	public function formField($name, $value)
+	public function formField($name, $value, $namespace = 'fields')
 	{
+		// Include resources
 		craft()->templates->includeCssResource('starratings/css/field.css');
 		craft()->templates->includeJsResource('starratings/js/field.js');
+
+		// Draw stars
 		$stars = $this->_drawStars(0, $value);
-		$input = '<input type="hidden" id="'.$name.'" name="'.$name.'" class="pineapple" value="'.$value.'">';
-		$div = '<div id="container-'.$name.'">'.$stars.$input.'</div>';
+
+		// Set HTML
+		$input = '<input type="hidden" class="sr-star-input" id="'.$name.'" name="'.$name.'" value="'.$value.'">';
+		$div = '<div class="stars-container">'.$stars.$input.'</div>';
+
+		// If front-end request, apply namespace
+		if (!craft()->request->isCpRequest()) {
+			$div = craft()->templates->namespaceInputs($div, $namespace);
+		}
+
+		// Return HTML
 		return TemplateHelper::getRaw($div);
 	}
 
