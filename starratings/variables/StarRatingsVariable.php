@@ -38,17 +38,17 @@ class StarRatingsVariable
 	}
 
 	// Render form field stars
-	public function formField($name, $value, $namespace = 'fields')
+	public function formField($fieldHandle, $existingValue = 0, $namespace = 'fields')
 	{
 		// Include resources
 		craft()->templates->includeCssResource('starratings/css/field.css');
 		craft()->templates->includeJsResource('starratings/js/field.js');
 
 		// Draw stars
-		$stars = $this->_drawStars(0, $value);
+		$stars = $this->_drawStars(0, $existingValue);
 
 		// Set HTML
-		$input = '<input type="hidden" class="sr-star-input" id="'.$name.'" name="'.$name.'" value="'.$value.'">';
+		$input = '<input type="hidden" class="sr-star-input" id="'.$fieldHandle.'" name="'.$fieldHandle.'" value="'.$existingValue.'">';
 		$div = '<div class="stars-container">'.$stars.$input.'</div>';
 
 		// If front-end request, apply namespace
