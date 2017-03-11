@@ -25,7 +25,7 @@ class StarRatingsVariable
 
 		// Get ratings
 		$avgRating  = craft()->starRatings_query->avgRating($elementId, $key);
-		$userRating = craft()->starRatings_query->userRating($elementId, $key, $userId);
+		$userRating = craft()->starRatings_query->userRating($userId, $elementId, $key);
 
 		// Draw stars
 		return $this->_drawStars($avgRating, $userRating, $elementId, $key, $allowElementRating);
@@ -232,6 +232,24 @@ window.csrfTokenValue = "'.craft()->request->getCsrfToken().'";
 		}
 
 		return craft()->starRatings_query->totalVotes($elementId, $key);
+	}
+
+	// Get rating of specific user
+	public function userRating($userId, $elementId, $key = null)
+	{
+		// If element ID is invalid, log error
+		if (!$elementId || !is_numeric($elementId)) {
+			StarRatingsPlugin::log('Invalid element ID');
+			return 0;
+		}
+
+		// If user ID is invalid, log error
+		if (!$userId || !is_numeric($userId)) {
+			StarRatingsPlugin::log('Invalid user ID');
+			return 0;
+		}
+
+		return craft()->starRatings_query->userRating($userId, $elementId, $key);
 	}
 
 	// ========================================================================

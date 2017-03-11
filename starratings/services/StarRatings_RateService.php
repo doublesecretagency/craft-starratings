@@ -57,7 +57,7 @@ class StarRatings_RateService extends BaseApplicationComponent
 		craft()->starRatings->validateUserId($userId);
 
 		// Get old rating by this user (if exists)
-		$oldRating = craft()->starRatings_query->userRating($elementId, $key, $userId);
+		$oldRating = craft()->starRatings_query->userRating($userId, $elementId, $key);
 
 		// Does old rating exist, and is it different?
 		$changed = ($oldRating && ($oldRating != $rating));

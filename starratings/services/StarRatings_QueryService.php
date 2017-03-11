@@ -5,7 +5,7 @@ class StarRatings_QueryService extends BaseApplicationComponent
 {
 
 	//
-	public function avgRating($elementId, $key)
+	public function avgRating($elementId, $key = null)
 	{
 		$record = StarRatings_ElementRatingRecord::model()->findByAttributes(array(
 			'elementId' => $elementId,
@@ -15,7 +15,7 @@ class StarRatings_QueryService extends BaseApplicationComponent
 	}
 
 	//
-	public function totalVotes($elementId, $key)
+	public function totalVotes($elementId, $key = null)
 	{
 		$record = StarRatings_ElementRatingRecord::model()->findByAttributes(array(
 			'elementId' => $elementId,
@@ -25,7 +25,7 @@ class StarRatings_QueryService extends BaseApplicationComponent
 	}
 
 	//
-	public function userRating($elementId, $key, $userId = null)
+	public function userRating($userId, $elementId, $key = null)
 	{
 		// Ensure the user ID is valid
 		craft()->starRatings->validateUserId($userId);
@@ -50,7 +50,7 @@ class StarRatings_QueryService extends BaseApplicationComponent
 	}
 
 	//
-	public function userHistory($userId = null)
+	public function userHistory($userId)
 	{
 		if ($userId) {
 			$record = StarRatings_UserHistoryRecord::model()->findByPK($userId);
