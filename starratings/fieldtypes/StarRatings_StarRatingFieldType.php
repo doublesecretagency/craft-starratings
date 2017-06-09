@@ -1,14 +1,14 @@
 <?php
 namespace Craft;
 
-class StarRatings_StarRatingFieldType extends BaseFieldType
+class StarRatings_StarRatingFieldType extends BaseFieldType implements IPreviewableFieldType
 {
 	/**
 	 * @return mixed
 	 */
 	public function getName()
 	{
-		return Craft::t('Star Rating');
+		return Craft::t('Star Rating (Star Ratings)');
 	}
 
 	/**
@@ -19,14 +19,6 @@ class StarRatings_StarRatingFieldType extends BaseFieldType
 		return AttributeType::Number;
 	}
 
-	protected function defineSettings()
-	{
-		return array(
-			'behavior' => array(AttributeType::String, 'default' => 'ratable'),
-			'starKey'  => array(AttributeType::String, 'default' => null),
-		);
-	}
-
 	/**
 	 * @param string $name
 	 * @param mixed  $value
@@ -34,36 +26,24 @@ class StarRatings_StarRatingFieldType extends BaseFieldType
 	 */
 	public function getInputHtml($name, $value)
 	{
-		$settings = $this->getSettings();
 		craft()->starRatings->backendField = true;
-
-		if ('showAvg' == $settings->behavior) {
-
-			$elementId = $this->element->id;
-			$starKey   = ($settings->starKey ? $settings->starKey : null);
-
-			$variables = array(
-				'avgRating' => craft()->starRatings_query->avgRating($elementId, $starKey),
-			);
-
-			return craft()->templates->render('starratings/field/avg-rating', $variables);
-
-		} else {
-
-			$variables = array(
-				'name'  => $name,
-				'value' => $value,
-			);
-
-			return craft()->templates->render('starratings/field/ratable', $variables);
-
-		}
+		return craft()->templates->render('starratings/fieldtypes/starrating', array(
+			'name'  => $name,
+			'value' => $value,
+		));
 	}
 
 	public function getSettingsHtml()
 	{
-		return craft()->templates->render('starratings/field/settings', array(
+		return craft()->templates->render('starratings/fieldtypes/starrating-settings', array(
 			'settings' => $this->getSettings()
+		));
+	}
+
+	public function getTableAttributeHtml($value)
+	{
+		return craft()->templates->render('starratings/fieldtypes/starrating-column', array(
+			'value' => $value
 		));
 	}
 

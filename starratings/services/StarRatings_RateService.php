@@ -50,6 +50,8 @@ class StarRatings_RateService extends BaseApplicationComponent
 		return $this->setIcons($iconMap);
 	}
 
+	// ========================================================================= //
+
 	//
 	public function rate($elementId, $key, $rating, $userId = null)
 	{
@@ -97,6 +99,8 @@ class StarRatings_RateService extends BaseApplicationComponent
 	{
 		$this->rate($elementId, $key, $rating, $userId);
 	}
+
+	// ========================================================================= //
 
 	//
 	private function _rateElement($elementId, $key, $rating, $userId, $changed, $oldRating)

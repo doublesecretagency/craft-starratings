@@ -73,7 +73,6 @@ class StarRatingsService extends BaseApplicationComponent
 
 	// ========================================================================= //
 
-	// Events
 	/**
 	 * Fires an 'onBeforeRate' event.
 	 *
