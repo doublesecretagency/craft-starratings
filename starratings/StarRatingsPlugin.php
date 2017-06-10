@@ -25,7 +25,7 @@ class StarRatingsPlugin extends BasePlugin
 
 	public function getVersion()
 	{
-		return '1.2.5 rc 4';
+		return '1.2.5 rc 5';
 	}
 
 	public function getSchemaVersion()
