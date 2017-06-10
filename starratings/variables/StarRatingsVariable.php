@@ -49,7 +49,7 @@ class StarRatingsVariable
 
 		// Set HTML
 		$input = '<input type="hidden" class="sr-star-input" id="'.$fieldHandle.'" name="'.$fieldHandle.'" value="'.$existingValue.'">';
-		$div = '<div class="stars-container">'.$stars.$input.'</div>';
+		$div = '<div class="sr-stars-container">'.$stars.$input.'</div>';
 
 		// If front-end request, apply namespace
 		if (!craft()->request->isCpRequest()) {

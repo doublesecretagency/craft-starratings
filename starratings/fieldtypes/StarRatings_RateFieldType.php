@@ -1,14 +1,14 @@
 <?php
 namespace Craft;
 
-class StarRatings_StarRatingFieldType extends BaseFieldType implements IPreviewableFieldType
+class StarRatings_RateFieldType extends BaseFieldType implements IPreviewableFieldType
 {
 	/**
 	 * @return mixed
 	 */
 	public function getName()
 	{
-		return Craft::t('Star Rating (Star Ratings)');
+		return Craft::t('Rate (Star Ratings)');
 	}
 
 	/**
@@ -27,7 +27,7 @@ class StarRatings_StarRatingFieldType extends BaseFieldType implements IPreviewa
 	public function getInputHtml($name, $value)
 	{
 		craft()->starRatings->backendField = true;
-		return craft()->templates->render('starratings/fieldtypes/starrating', array(
+		return craft()->templates->render('starratings/fieldtypes/rate', array(
 			'name'  => $name,
 			'value' => $value,
 		));
@@ -35,14 +35,14 @@ class StarRatings_StarRatingFieldType extends BaseFieldType implements IPreviewa
 
 	public function getSettingsHtml()
 	{
-		return craft()->templates->render('starratings/fieldtypes/starrating-settings', array(
+		return craft()->templates->render('starratings/fieldtypes/rate-settings', array(
 			'settings' => $this->getSettings()
 		));
 	}
 
 	public function getTableAttributeHtml($value)
 	{
-		return craft()->templates->render('starratings/fieldtypes/starrating-column', array(
+		return craft()->templates->render('starratings/fieldtypes/rate-column', array(
 			'value' => $value
 		));
 	}

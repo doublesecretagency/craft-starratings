@@ -37,48 +37,56 @@ document.addEventListener('click', function (e) {
 	// Check click target
 	if (hasClass(star, 'sr-star')) {
 
-		// Get new rating
-		var starValue = star.getAttribute('data-rating');
+		// Get container
+		var container = star.parentNode;
 
-		// Get all stars in group
-		var starGroup = star.parentNode.children;
+		// Ensure star set is ratable
+		if (hasClass(container, 'sr-stars-container')) {
 
-		// Loop through all stars in group
-		for (i in starGroup) {
+			// Get new rating
+			var starValue = star.getAttribute('data-rating');
 
-			// Get individual element
-			var s = starGroup[i];
+			// Get all stars in group
+			var starGroup = star.parentNode.children;
 
-			// If element is an input
-			if (hasClass(s, 'sr-star-input')) {
+			// Loop through all stars in group
+			for (i in starGroup) {
 
-				// Set input value
-				s.value = starValue;
+				// Get individual element
+				var s = starGroup[i];
 
-			// Else if element is a star
-			} else if (hasClass(s, 'sr-star')) {
+				// If element is an input
+				if (hasClass(s, 'sr-star-input')) {
 
-				// Get star value
-				var fa = s.childNodes[0];
-				var sValue = s.getAttribute('data-rating');
+					// Set input value
+					s.value = starValue;
 
-				// Get existing classes
-				var starClasses = s.className;
-				var faClasses   = fa.className;
+				// Else if element is a star
+				} else if (hasClass(s, 'sr-star')) {
 
-				// Remove existing classes
-				removeClass(s,  'sr-user-rating');
-				removeClass(s,  'sr-unrated');
-				removeClass(fa, 'fa-star');
-				removeClass(fa, 'fa-star-o');
+					// Get star value
+					var fa = s.childNodes[0];
+					var sValue = s.getAttribute('data-rating');
 
-				// Add appropriate classes
-				if (sValue <= starValue) {
-					addClass(s,  'sr-user-rating');
-					addClass(fa, 'fa-star');
-				} else {
-					addClass(s,  'sr-unrated');
-					addClass(fa, 'fa-star-o');
+					// Get existing classes
+					var starClasses = s.className;
+					var faClasses   = fa.className;
+
+					// Remove existing classes
+					removeClass(s,  'sr-user-rating');
+					removeClass(s,  'sr-unrated');
+					removeClass(fa, 'fa-star');
+					removeClass(fa, 'fa-star-o');
+
+					// Add appropriate classes
+					if (sValue <= starValue) {
+						addClass(s,  'sr-user-rating');
+						addClass(fa, 'fa-star');
+					} else {
+						addClass(s,  'sr-unrated');
+						addClass(fa, 'fa-star-o');
+					}
+
 				}
 
 			}
