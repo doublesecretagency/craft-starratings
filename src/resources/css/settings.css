@@ -1,0 +1,12 @@
+.field p,
+.field p.warning {
+    margin-top: 12px;
+}
+.field p.warning.change-value {
+    display: none;
+}
+
+.maxStarsAvailable label {
+    display: inline-block;
+    padding-left: 8px;
+}

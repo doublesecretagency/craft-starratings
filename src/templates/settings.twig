@@ -1,0 +1,101 @@
+{% import '_includes/forms' as forms %}
+
+{% macro configWarning(setting) -%}
+    {% set docsUrl = 'https://www.doublesecretagency.com/plugins/star-ratings/docs/override-settings' %}
+    <p class="warning">
+        {{ "This is being overridden by the {setting} config setting."|t('app', {
+            setting: '<a href="'~docsUrl~'" target="_blank">'~setting~'</a>'
+        })|raw }}
+    </p>
+{%- endmacro %}
+
+{% from _self import configWarning %}
+
+{% set starMaxOptions = {1:1,2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9,10:10} %}
+
+<h2>Maximum Possible Rating</h2>
+
+<div class="field maxStarsAvailable">
+    {{ forms.select({
+        id: 'maxStarsAvailable',
+        name: 'maxStarsAvailable',
+        options: starMaxOptions,
+        value: settings.maxStarsAvailable,
+        disabled: 'maxStarsAvailable' in overrideKeys
+    }) }}
+    <label><strong>stars total</strong></label>
+    {{ 'maxStarsAvailable' in overrideKeys ? configWarning('maxStarsAvailable') }}
+    <p class="change-value warning">Changing this value will have a significant impact on existing calculations. If any ratings have already been recorded, it's highly recommended to uninstall and re-install the plugin before continuing.</p>
+</div>
+
+<hr/>
+
+<h2>Rating Settings</h2>
+
+<div class="field">
+    {{ forms.checkbox({
+        label: "<strong>Require login to rate</strong>"|t,
+        id: 'requireLogin',
+        name: 'requireLogin',
+        checked: settings.requireLogin,
+        disabled: 'requireLogin' in overrideKeys
+    }) }}
+    {{ 'requireLogin' in overrideKeys ? configWarning('requireLogin') }}
+    <p>To prevent any chance of voting fraud, it's <strong>highly recommended</strong> that your users be logged in to rate. However, sometimes it's necessary to allow anonymous rating.</p>
+</div>
+
+<div class="field">
+    {{ forms.checkbox({
+        label: "<strong>Allow half-stars</strong>"|t,
+        id: 'allowHalfStars',
+        name: 'allowHalfStars',
+        checked: settings.allowHalfStars,
+        disabled: 'allowHalfStars' in overrideKeys
+    }) }}
+    {{ 'allowHalfStars' in overrideKeys ? configWarning('allowHalfStars') }}
+    <p>If you'd prefer to display results in full stars only, this setting can be disabled.</p>
+</div>
+
+<div class="field">
+    {{ forms.checkbox({
+        label: "<strong>Allow rating changes</strong>"|t,
+        id: 'allowRatingChange',
+        name: 'allowRatingChange',
+        checked: settings.allowRatingChange,
+        disabled: 'allowRatingChange' in overrideKeys
+    }) }}
+    {{ 'allowRatingChange' in overrideKeys ? configWarning('allowRatingChange') }}
+    <p>Occasionally users will change their mind after rating an element. This option allows them to change their rating.</p>
+</div>
+
+<div class="field">
+    {{ forms.checkbox({
+        label: "<strong>Allow Font Awesome</strong>"|t,
+        id: 'allowFontAwesome',
+        name: 'allowFontAwesome',
+        checked: settings.allowFontAwesome,
+        disabled: 'allowFontAwesome' in overrideKeys
+    }) }}
+    {{ 'allowFontAwesome' in overrideKeys ? configWarning('allowFontAwesome') }}
+    <p>The default star icons are generated using <a href="https://fontawesome.com/" target="_blank">Font Awesome</a>. It's loaded automatically by the plugin, but can be disabled if necessary.</p>
+</div>
+
+<hr/>
+
+<h2>Complete Rating Log</h2>
+
+<div class="field">
+    {{ forms.checkbox({
+        label: "<strong>Keep a detailed record of all ratings</strong>"|t,
+        id: 'keepRatingLog',
+        name: 'keepRatingLog',
+        checked: settings.keepRatingLog,
+        disabled: 'keepRatingLog' in overrideKeys
+    }) }}
+    {{ 'keepRatingLog' in overrideKeys ? configWarning('keepRatingLog') }}
+    <p>Generally unnecessary... The detailed log is not used to calculate the tally for each element.</p>
+    <ul>
+        <li><strong>PRO:</strong> You have a detailed log of every rating cast, which can then be accessed by another plugin via the <code>StarRatings_RatingLogRecord</code> class.</li>
+        <li><strong>CON:</strong> Any time Craft needs to create a backup database, it could take a very long time (depending on how big the ratings table gets).</li>
+    </ul>
+</div>

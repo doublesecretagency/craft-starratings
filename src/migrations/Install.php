@@ -1,0 +1,105 @@
+<?php
+/**
+ * Star Ratings plugin for Craft CMS
+ *
+ * An easy to use and highly flexible ratings system.
+ *
+ * @author    Double Secret Agency
+ * @link      https://www.doublesecretagency.com/
+ * @copyright Copyright (c) 2015 Double Secret Agency
+ */
+
+namespace doublesecretagency\starratings\migrations;
+
+use craft\db\Migration;
+
+/**
+ * Installation Migration
+ * @since 2.0.0
+ */
+class Install extends Migration
+{
+
+    /**
+     * @inheritdoc
+     */
+    public function safeUp()
+    {
+        $this->createTables();
+        $this->createIndexes();
+        $this->addForeignKeys();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function safeDown()
+    {
+        $this->dropTableIfExists('{{%starratings_elementratings}}');
+        $this->dropTableIfExists('{{%starratings_ratinglog}}');
+        $this->dropTableIfExists('{{%starratings_userhistories}}');
+    }
+
+    /**
+     * Creates the tables.
+     *
+     * @return void
+     */
+    protected function createTables()
+    {
+        $this->createTable('{{%starratings_elementratings}}', [
+            'id'          => $this->primaryKey(),
+            'elementId'   => $this->integer()->notNull(),
+            'starKey'     => $this->string(),
+            'avgRating'   => $this->decimal(5, 3),
+            'totalVotes'  => $this->integer(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid'         => $this->uid(),
+        ]);
+        $this->createTable('{{%starratings_ratinglog}}', [
+            'id'            => $this->primaryKey(),
+            'elementId'     => $this->integer()->notNull(),
+            'starKey'       => $this->string(),
+            'userId'        => $this->integer(),
+            'ipAddress'     => $this->string(),
+            'ratingValue'   => $this->tinyInteger(2),
+            'ratingChanged' => $this->boolean()->defaultValue(false),
+            'dateCreated'   => $this->dateTime()->notNull(),
+            'dateUpdated'   => $this->dateTime()->notNull(),
+            'uid'           => $this->uid(),
+        ]);
+        $this->createTable('{{%starratings_userhistories}}', [
+            'id'          => $this->integer()->notNull(),
+            'history'     => $this->text(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid'         => $this->uid(),
+            'PRIMARY KEY([[id]])',
+        ]);
+    }
+
+    /**
+     * Creates the indexes.
+     *
+     * @return void
+     */
+    protected function createIndexes()
+    {
+        $this->createIndex(null, '{{%starratings_elementratings}}', ['elementId']);
+        $this->createIndex(null, '{{%starratings_ratinglog}}',      ['elementId']);
+    }
+
+    /**
+     * Adds the foreign keys.
+     *
+     * @return void
+     */
+    protected function addForeignKeys()
+    {
+        $this->addForeignKey(null, '{{%starratings_elementratings}}', ['elementId'], '{{%elements}}', ['id'], 'CASCADE');
+        $this->addForeignKey(null, '{{%starratings_ratinglog}}',      ['elementId'], '{{%elements}}', ['id'], 'CASCADE');
+        $this->addForeignKey(null, '{{%starratings_userhistories}}',  ['id'],        '{{%users}}',    ['id'], 'CASCADE');
+    }
+
+}

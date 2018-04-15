@@ -1,0 +1,40 @@
+{
+    "name": "doublesecretagency/craft-starratings",
+    "description": "An easy to use and highly flexible ratings system.",
+    "type": "craft-plugin",
+    "version": "2.0.0",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "star-ratings",
+        "stars",
+        "rate"
+    ],
+    "support": {
+        "docs": "https://www.doublesecretagency.com/plugins/star-ratings/docs",
+        "issues": "https://github.com/doublesecretagency/craft-starratings/issues"
+    },
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Double Secret Agency",
+            "homepage": "https://www.doublesecretagency.com/plugins"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^3.0",
+        "fortawesome/font-awesome": "4.7.0"
+    },
+    "autoload": {
+        "psr-4": {
+          "doublesecretagency\\starratings\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "Star Ratings",
+        "handle": "star-ratings",
+        "class": "doublesecretagency\\starratings\\StarRatings"
+    }
+}

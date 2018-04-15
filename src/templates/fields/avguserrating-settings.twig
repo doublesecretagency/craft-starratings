@@ -1,0 +1,12 @@
+{% import '_includes/forms' as forms %}
+
+{{ forms.textField({
+    label: 'Stars Key'|t,
+    instructions: 'If you have multiple rating types on the same element, specify a unique key here. <a href="https://www.doublesecretagency.com/plugins/star-ratings/docs/multiple-ratings-for-the-same-element" target="_blank">Read more...</a>'|t,
+    id: 'starKey',
+    name: 'starKey',
+    value: settings.starKey,
+    class: 'code',
+}) }}
+
+<p>This fieldtype is <strong>read-only</strong>. It will display an average of user ratings for each element. <a href="https://www.doublesecretagency.com/plugins/star-ratings/docs/average-user-rating-field-type" target="_blank">Learn more...</a></p>
