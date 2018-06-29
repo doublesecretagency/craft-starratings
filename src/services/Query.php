@@ -80,7 +80,7 @@ class Query extends Component
     }
 
     //
-    public function userHistory($userId)
+    public function userHistory($userId = null)
     {
         if (!$userId) {
             return [];
@@ -102,7 +102,7 @@ class Query extends Component
         if ($elementIds) {
             // Match order to elementIds
             $ids = implode(', ', $elementIds);
-            $query->orderBy = [new Expression("FIELD([[elements.id]], {$ids}) DESC")];
+            $query->orderBy = [new Expression("field([[elements.id]], {$ids}) desc")];
         }
         return $query;
     }
@@ -122,9 +122,9 @@ class Query extends Component
         }
         // Get elementIds of matching ratings
         $elementIds = ElementRating::find()
-            ->select('elementId')
+            ->select('[[elementId]]')
             ->where($conditions)
-            ->orderBy('avgRating DESC, totalVotes DESC, dateUpdated DESC')
+            ->orderBy('[[avgRating]] desc, [[totalVotes]] desc, [[dateUpdated]] desc')
             ->column();
         // Return elementIds
         return array_reverse($elementIds);

@@ -168,21 +168,27 @@ class StarRatingsVariable
         // Get settings
         $settings = StarRatings::$plugin->getSettings();
 
-        // If CSS is enabled and not yet included
-        if (!$this->_cssIncluded && !in_array('css', $this->_disabled)) {
-
-            // Get view
-            $view = Craft::$app->getView();
-
-            // Include CSS resources
-            if ($settings->allowFontAwesome) {
-                $view->registerAssetBundle(FontAwesomeAssets::class);
-            }
-            $view->registerAssetBundle(CssAssets::class);
-
-            // Mark CSS as included
-            $this->_cssIncluded = true;
+        // If CSS has been included, bail
+        if ($this->_cssIncluded) {
+            return;
         }
+
+        // If CSS is disabled, bail
+        if (in_array('css', $this->_disabled)) {
+            return;
+        }
+
+        // Get view
+        $view = Craft::$app->getView();
+
+        // Include CSS resources
+        if ($settings->allowFontAwesome) {
+            $view->registerAssetBundle(FontAwesomeAssets::class);
+        }
+        $view->registerAssetBundle(CssAssets::class);
+
+        // Mark CSS as included
+        $this->_cssIncluded = true;
     }
 
     // Include JS

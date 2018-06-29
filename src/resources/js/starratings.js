@@ -30,7 +30,7 @@ var starRatings = {
                         console.log('['+elementId+']'+(key ? ' ['+key+']' : '')+' Rated '+value+' stars');
                         console.log(results);
                     }
-                    var errorReturned = (typeof results == 'string' || results instanceof String);
+                    var errorReturned = (typeof results === 'string' || results instanceof String);
                     // If no error message was returned
                     if (!errorReturned) {
                         var currentPosition;

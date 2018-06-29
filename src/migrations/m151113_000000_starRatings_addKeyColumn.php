@@ -68,6 +68,11 @@ class m151113_000000_starRatings_addKeyColumn extends Migration
         $this->alterColumn('{{%starratings_elementratings}}', 'elementId', $this->integer()->notNull());
     }
 
+    private function _removeZeros()
+    {
+        $this->delete('{{%starratings_elementratings}}', 'totalVotes=0');
+    }
+
     private function _cleanupColumns()
     {
         MigrationHelper::dropForeignKeyIfExists('{{%starratings_elementratings}}', ['id'], $this);
@@ -88,11 +93,6 @@ class m151113_000000_starRatings_addKeyColumn extends Migration
             $newData = ['id' => $i++];
             $this->update('{{%starratings_elementratings}}', $newData, ['elementId' => $row['elementId']]);
         }
-    }
-
-    private function _removeZeros()
-    {
-        $this->delete('{{%starratings_elementratings}}', 'totalVotes=0');
     }
 
     /**
