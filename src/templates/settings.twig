@@ -13,19 +13,43 @@
 
 {% set starMaxOptions = {1:1,2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9,10:10} %}
 
-<h2>Maximum Possible Rating</h2>
+<h2>Stars Configuration</h2>
 
 <div class="field maxStarsAvailable">
-    {{ forms.select({
-        id: 'maxStarsAvailable',
-        name: 'maxStarsAvailable',
-        options: starMaxOptions,
-        value: settings.maxStarsAvailable,
-        disabled: 'maxStarsAvailable' in overrideKeys
+    <div class="heading">
+        <label><strong>Maximum Possible Rating</strong></label>
+    </div>
+    <div class="input ltr">
+        {{ forms.select({
+            id: 'maxStarsAvailable',
+            name: 'maxStarsAvailable',
+            options: starMaxOptions,
+            value: settings.maxStarsAvailable,
+            disabled: 'maxStarsAvailable' in overrideKeys
+        }) }}
+        <span class="stars-total-label">stars total</span>
+        {{ 'maxStarsAvailable' in overrideKeys ? configWarning('maxStarsAvailable') }}
+        <p class="change-value warning">Changing this value will have a significant impact on existing calculations. If any ratings have already been recorded, it's highly recommended to uninstall and re-install the plugin before continuing.</p>
+    </div>
+</div>
+
+<div class="field">
+    {% set options = {
+        'full'    : 'Full Stars',
+        'half'    : 'Half Stars',
+        'quarter' : 'Quarter Stars',
+    } %}
+    {{ forms.selectField({
+        label: "<strong>Star Increment Size</strong>"|t,
+        instructions: "Ratings result averages are rarely a round number, so the fractional remainder is rounded for the final star in each set."|t,
+        id: 'starIncrements',
+        name: 'starIncrements',
+        value: settings.starIncrements,
+        options: options,
+        disabled: 'starIncrements' in overrideKeys
     }) }}
-    <label><strong>stars total</strong></label>
-    {{ 'maxStarsAvailable' in overrideKeys ? configWarning('maxStarsAvailable') }}
-    <p class="change-value warning">Changing this value will have a significant impact on existing calculations. If any ratings have already been recorded, it's highly recommended to uninstall and re-install the plugin before continuing.</p>
+    {{ 'starIncrements' in overrideKeys ? configWarning('starIncrements') }}
+    <p>For more information on partial stars, see the docs about <a href="https://www.doublesecretagency.com/plugins/star-ratings/docs/customize-your-star-icons" target="_blank">customizing your star icons...</a></p>
 </div>
 
 <hr/>
@@ -42,18 +66,6 @@
     }) }}
     {{ 'requireLogin' in overrideKeys ? configWarning('requireLogin') }}
     <p>To prevent any chance of voting fraud, it's <strong>highly recommended</strong> that your users be logged in to rate. However, sometimes it's necessary to allow anonymous rating.</p>
-</div>
-
-<div class="field">
-    {{ forms.checkbox({
-        label: "<strong>Allow half-stars</strong>"|t,
-        id: 'allowHalfStars',
-        name: 'allowHalfStars',
-        checked: settings.allowHalfStars,
-        disabled: 'allowHalfStars' in overrideKeys
-    }) }}
-    {{ 'allowHalfStars' in overrideKeys ? configWarning('allowHalfStars') }}
-    <p>If you'd prefer to display results in full stars only, this setting can be disabled.</p>
 </div>
 
 <div class="field">

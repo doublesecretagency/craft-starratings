@@ -23,11 +23,11 @@ class Settings extends Model
     /** @var int  $maxStarsAvailable  Number of stars for user to choose from. */
     public $maxStarsAvailable = 5;
 
+    /** @var string  $starIncrements  Smallest fraction to render when displaying stars. */
+    public $starIncrements = 'half';
+
     /** @var bool  $requireLogin  Whether a user is required to login to cast rating. */
     public $requireLogin = true;
-
-    /** @var bool  $allowHalfStars  Whether it's possible to display half-stars in results. */
-    public $allowHalfStars = true;
 
     /** @var bool  $allowRatingChange  Whether users are allowed to change their rating. */
     public $allowRatingChange = true;

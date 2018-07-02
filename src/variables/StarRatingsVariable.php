@@ -96,13 +96,18 @@ class StarRatingsVariable
         // Set total number of available stars
         $maxStarsAvailable = $settings->maxStarsAvailable;
 
-        $halfStar = (fmod($avgRating, 1) >= 0.5);
-        $halfStarNext = false;
+        // Get star icons
+        $starIcons = StarRatings::$plugin->starRatings_rate->starIcons;
 
         $html = '';
-        for ($i = 1; $i <= $maxStarsAvailable; $i++) {
+        $partialStar = false;
+        $mod = fmod($avgRating, 1);
 
-            $this->_includeCss();
+        // Include CSS
+        $this->_includeCss();
+
+        // Loop through all stars
+        for ($i = 1; $i <= $maxStarsAvailable; $i++) {
 
             // Initialize star classes
             $classes = 'sr-star sr-value-'.$i;
@@ -112,29 +117,75 @@ class StarRatingsVariable
                 $classes .= ' fa-2x';
             }
 
-            if (!$userRating && ($i <= $avgRating)) {
-                // Average rating
-                $star = StarRatings::$plugin->starRatings_rate->starIconFull;
-                $starType = 'sr-avg-rating';
-                // Determine whether a half star is next
-                if ($halfStar && $settings->allowHalfStars) {
-                    $halfStarNext = true;
-                }
-            } else if ($userRating && ($i <= $userRating)) {
+            // Whether star is displaying the user's rating
+            $userStar = ($userRating && ($i <= $userRating));
+
+            // Whether star is displaying the average rating
+            $avgStar = (!$userRating && ($i <= $avgRating));
+
+            // Configure star
+            if ($userStar) {
+
                 // User rating
-                $star = StarRatings::$plugin->starRatings_rate->starIconFull;
                 $starType = 'sr-user-rating';
-            } else {
-                // Empty stars
-                if ($halfStarNext) {
-                    $star = StarRatings::$plugin->starRatings_rate->starIconHalf;
-                    $starType = 'sr-avg-rating';
-                    $halfStarNext = false;
-                } else {
-                    $star = StarRatings::$plugin->starRatings_rate->starIconEmpty;
-                    $starType = 'sr-unrated';
+                $star = $starIcons['4/4'];
+
+            } else if ($avgStar) {
+
+                // Average rating
+                $starType = 'sr-avg-rating';
+                $star = $starIcons['4/4'];
+
+                // Whether partial stars are allowed
+                $allowsPartialStar = (in_array($settings->starIncrements, ['half','quarter']));
+
+                // Determine whether a half star is next
+                if ($allowsPartialStar && (0 < $mod)) {
+
+                    // Calculate star size
+                    if (0.75 <= $mod) {
+                        $iconSize = '3/4';
+                    } else if (0.5 <= $mod) {
+                        $iconSize = '2/4';
+                    } else if (0.25 <= $mod) {
+                        $iconSize = '1/4';
+                    } else {
+                        $iconSize = false;
+                    }
+
+                    // Adjust size for half stars
+                    if ('half' == $settings->starIncrements) {
+                        switch ($iconSize) {
+                            case '1/4':
+                                $iconSize = false;
+                                break;
+                            case '3/4':
+                                $iconSize = '2/4';
+                                break;
+                        }
+                    }
+
+                    // Set partial star
+                    $partialStar = ($iconSize ? $starIcons[$iconSize] : false);
                 }
+
+            } else {
+
+                // Remaining stars
+                if ($partialStar) {
+                    // Partial star
+                    $starType = 'sr-avg-rating';
+                    $star = $partialStar;
+                    $partialStar = false;
+                } else {
+                    // Empty star
+                    $starType = 'sr-unrated';
+                    $star = $starIcons['0/4'];
+                }
+
             }
+
+            // Append star type class
             $classes .= ' '.$starType;
 
             // If element specified
@@ -165,9 +216,6 @@ class StarRatingsVariable
     // Include CSS
     private function _includeCss()
     {
-        // Get settings
-        $settings = StarRatings::$plugin->getSettings();
-
         // If CSS has been included, bail
         if ($this->_cssIncluded) {
             return;
@@ -177,6 +225,9 @@ class StarRatingsVariable
         if (in_array('css', $this->_disabled)) {
             return;
         }
+
+        // Get settings
+        $settings = StarRatings::$plugin->getSettings();
 
         // Get view
         $view = Craft::$app->getView();
@@ -215,13 +266,9 @@ class StarRatingsVariable
 
         // Set icons
         $iconJs = '';
-        $starIcons = [
-            'starIconFull',
-            'starIconHalf',
-            'starIconEmpty',
-        ];
-        foreach ($starIcons as $icon) {
-            $iconJs .= 'starRatings.'.$icon.' = '.json_encode(StarRatings::$plugin->starRatings_rate->{$icon}).';'.PHP_EOL;
+        $starIcons = StarRatings::$plugin->starRatings_rate->starIcons;
+        foreach ($starIcons as $key => $icon) {
+            $iconJs .= 'starRatings.starIcons["'.$key.'"] = '.json_encode($icon).';'.PHP_EOL;
         }
         $view->registerJs($iconJs, $view::POS_END);
 

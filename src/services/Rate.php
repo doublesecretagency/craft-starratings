@@ -30,9 +30,7 @@ use doublesecretagency\starratings\records\UserHistory;
 class Rate extends Component
 {
 
-    public $starIconFull;
-    public $starIconHalf;
-    public $starIconEmpty;
+    public $starIcons = [];
 
     public $messageLoginRequired    = 'You must be logged in to rate this element.';
     public $messageAlreadyRated     = 'You have already rated this element.';
@@ -48,9 +46,13 @@ class Rate extends Component
     //
     private function _loadIcons()
     {
-        $this->starIconFull  = $this->_fa('star');
-        $this->starIconHalf  = $this->_fa('star-half-empty');
-        $this->starIconEmpty = $this->_fa('star-o');
+        $this->starIcons = [
+            '0/4' => $this->_fa('star-o'),
+            '1/4' => $this->_fa('star-o'),
+            '2/4' => $this->_fa('star-half-empty'),
+            '3/4' => $this->_fa('star-half-empty'),
+            '4/4' => $this->_fa('star'),
+        ];
     }
 
     //
@@ -64,9 +66,24 @@ class Rate extends Component
     {
         foreach ($iconMap as $type => $html) {
             switch ($type) {
-                case 'full'  : $this->starIconFull  = $html; break;
-                case 'half'  : $this->starIconHalf  = $html; break;
-                case 'empty' : $this->starIconEmpty = $html; break;
+                case 'empty':
+                case '0/4':
+                    $this->starIcons['0/4'] = $html;
+                    break;
+                case '1/4':
+                    $this->starIcons['1/4'] = $html;
+                    break;
+                case 'half':
+                case '2/4':
+                    $this->starIcons['2/4'] = $html;
+                    break;
+                case '3/4':
+                    $this->starIcons['3/4'] = $html;
+                    break;
+                case 'full':
+                case '4/4':
+                    $this->starIcons['4/4'] = $html;
+                    break;
             }
         }
     }

@@ -3,6 +3,7 @@ var ajax = window.superagent;
 
 // Star Ratings JS object
 var starRatings = {
+    starIcons: [],
     ratingChangeAllowed: false,
     // Rate an element
     rate: function (elementId, key, value, allowElementRating) {
@@ -33,9 +34,10 @@ var starRatings = {
                     var errorReturned = (typeof results === 'string' || results instanceof String);
                     // If no error message was returned
                     if (!errorReturned) {
+                        var i; // Counter
                         var currentPosition;
                         // Remove existing rating
-                        for (var i = 0; i < elementStars.length; i++) {
+                        for (i = 0; i < elementStars.length; i++) {
                             starRatings._removeClass(elementStars[i], 'sr-avg-rating');
                             starRatings._removeClass(elementStars[i], 'sr-user-rating');
                             starRatings._removeClass(elementStars[i], 'sr-unrated');
@@ -44,14 +46,14 @@ var starRatings = {
                             }
                         }
                         // Adds new rating
-                        for (var i = 0; i < value; i++) {
-                            elementStars[i].innerHTML = starRatings.starIconFull;
+                        for (i = 0; i < value; i++) {
+                            elementStars[i].innerHTML = starRatings.starIcons['4/4'];
                             starRatings._addClass(elementStars[i], 'sr-user-rating');
                             currentPosition = (i+1);
                         }
                         // Fills remaining stars
-                        for (var i = currentPosition; i < elementStars.length; i++) {
-                            elementStars[i].innerHTML = starRatings.starIconEmpty;
+                        for (i = currentPosition; i < elementStars.length; i++) {
+                            elementStars[i].innerHTML = starRatings.starIcons['0/4'];
                             starRatings._addClass(elementStars[i], 'sr-unrated');
                         }
                     }
@@ -75,4 +77,4 @@ var starRatings = {
     _addClass: function (star, cssClass) {
         star.className = star.className.trim() + ' ' + cssClass;
     }
-}
+};
