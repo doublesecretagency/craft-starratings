@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.1.0 - 2018-07-01
+
+### Added
+- Added ability to display quarter stars.
+- Added “Star Increment Size” setting.
+
+### Changed
+- Removed "Allow half-stars" setting, in favor of “Star Increment Size” setting.
+
+### Fixed
+- Patched to run via CLI without errors.
+
 ## 2.0.0 - 2018-04-15
 
 ### Added

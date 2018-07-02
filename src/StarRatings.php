@@ -49,7 +49,7 @@ class StarRatings extends Plugin
     public $hasCpSettings = true;
 
     /** @var bool  $schemaVersion  Current schema version of the plugin. */
-    public $schemaVersion = '2.0.0';
+    public $schemaVersion = '2.1.0';
 
     /** @inheritDoc */
     public function init()
