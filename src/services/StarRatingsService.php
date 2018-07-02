@@ -38,13 +38,21 @@ class StarRatingsService extends Component
     // Get history of anonymous user
     public function getAnonymousHistory()
     {
+        // Get request
+        $request = Craft::$app->getRequest();
+
+        // If running via command line, bail
+        if ($request->getIsConsoleRequest()) {
+            return false;
+        }
+
         // If login is required, bail
         if (StarRatings::$plugin->getSettings()->requireLogin) {
             return false;
         }
 
         // Get cookies object
-        $cookies = Craft::$app->getRequest()->getCookies();
+        $cookies = $request->getCookies();
 
         // If cookie exists
         if ($cookies->has($this->userCookie)) {
