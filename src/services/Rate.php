@@ -199,7 +199,10 @@ class Rate extends Component
         $record = UserHistory::findOne([
             'id' => $userId,
         ]);
+
+        // Get item key
         $item = StarRatings::$plugin->starRatings->setItemKey($elementId, $key);
+
         // If record already exists
         if ($record) {
             $history = json_decode($record->history, true);
@@ -213,9 +216,11 @@ class Rate extends Component
             $record->id = $userId;
             $history = [];
         }
+
         // Register rating
         $history[$item] = $rating;
         $record->history = $history;
+
         // Save
         return $record->save();
     }
@@ -295,12 +300,12 @@ class Rate extends Component
     //
     private function _updateRatingLog($elementId, $key, $rating, $userId, $changed)
     {
-        // Get settings
-        $settings = StarRatings::$plugin->getSettings();
         // If not keeping a rating log, bail
-        if (!$settings->keepRatingLog) {
+        if (!StarRatings::$plugin->getSettings()->keepRatingLog) {
             return false;
         }
+
+        // Log rating
         $record = new RatingLog;
         $record->elementId     = $elementId;
         $record->starKey       = $key;
@@ -318,21 +323,26 @@ class Rate extends Component
         if (!$userId) {
             return false;
         }
+
         // Get user history
         $record = UserHistory::findOne([
             'id' => $userId,
         ]);
+
         // If no user history, bail
         if (!$record) {
             return false;
         }
+
         // Remove from database history
         $historyDb = json_decode($record->history, true);
         $item = StarRatings::$plugin->starRatings->setItemKey($elementId, $key);
+
         // If item doesn't exist in history, bail
         if (!array_key_exists($item, $historyDb)) {
             return false;
         }
+
         // Remove item from history
         unset($historyDb[$item]);
         $record->history = $historyDb;
