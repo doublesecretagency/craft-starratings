@@ -11,8 +11,9 @@
 
 namespace doublesecretagency\starratings\migrations;
 
+use Craft;
 use craft\db\Migration;
-use craft\db\Query;
+use doublesecretagency\starratings\StarRatings;
 
 /**
  * Migration: Convert half-star setting to a dropdown menu
@@ -27,12 +28,15 @@ class m180701_000000_starRatings_convertHalfStarSetting extends Migration
     public function safeUp()
     {
         // Get settings
-        $settings = $this->_getSettings();
+        $settings = StarRatings::$plugin->getSettings();
 
         // If no settings exist, bail
-        if (!is_array($settings)) {
+        if (!$settings) {
             return true;
         }
+
+        // Convert model into array
+        $settings = $settings->getAttributes();
 
         // If `allowHalfStars` is not set, bail
         if (!array_key_exists('allowHalfStars', $settings)) {
@@ -50,39 +54,10 @@ class m180701_000000_starRatings_convertHalfStarSetting extends Migration
         unset($settings['allowHalfStars']);
 
         // Save settings
-        $this->_setSettings($settings);
+        Craft::$app->getPlugins()->savePluginSettings(StarRatings::$plugin, $settings);
 
         // Return true
         return true;
-    }
-
-    /**
-     * Get plugin settings
-     *
-     * @return array
-     */
-    private function _getSettings()
-    {
-        // Get original settings value
-        $oldSettings = (new Query())
-            ->select(['settings'])
-            ->from(['{{%plugins}}'])
-            ->where(['handle' => 'star-ratings'])
-            ->one($this->db);
-        return @json_decode($oldSettings['settings'], true);
-    }
-
-    /**
-     * Save plugin settings
-     *
-     * @param array $settings Updated settings
-     */
-    private function _setSettings($settings)
-    {
-        // Update settings field
-        $newSettings = json_encode($settings);
-        $data = ['settings' => $newSettings];
-        $this->update('{{%plugins}}', $data, ['handle' => 'star-ratings']);
     }
 
     /**
