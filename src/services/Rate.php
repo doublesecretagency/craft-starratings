@@ -11,6 +11,7 @@
 
 namespace doublesecretagency\starratings\services;
 
+use craft\helpers\Json;
 use yii\base\Event;
 use yii\web\Cookie;
 
@@ -205,9 +206,9 @@ class Rate extends Component
 
         // If record already exists
         if ($record) {
-            $history = json_decode($record->history, true);
+            $history = Json::decode($record->history);
             // If user has already rated element, bail
-            if (array_key_exists($item, $history)) {
+            if (isset($history[$item])) {
                 return false;
             }
         } else {
@@ -231,7 +232,7 @@ class Rate extends Component
         $history =& StarRatings::$plugin->starRatings->anonymousHistory;
         $item = StarRatings::$plugin->starRatings->setItemKey($elementId, $key);
         // If already voted for, bail
-        if (array_key_exists($item, $history)) {
+        if (isset($history[$item])) {
             return false;
         }
         // Cast vote
@@ -335,11 +336,11 @@ class Rate extends Component
         }
 
         // Remove from database history
-        $historyDb = json_decode($record->history, true);
+        $historyDb = Json::decode($record->history);
         $item = StarRatings::$plugin->starRatings->setItemKey($elementId, $key);
 
         // If item doesn't exist in history, bail
-        if (!array_key_exists($item, $historyDb)) {
+        if (!isset($historyDb[$item])) {
             return false;
         }
 
@@ -360,7 +361,7 @@ class Rate extends Component
         }
         $item = StarRatings::$plugin->starRatings->setItemKey($elementId, $key);
         // If item doesn't exist in history, bail
-        if (!array_key_exists($item, $history)) {
+        if (!isset($history[$item])) {
             return false;
         }
         // Remove item from history

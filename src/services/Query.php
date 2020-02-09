@@ -72,7 +72,7 @@ class Query extends Component
         }
         // If user already rated this element, get rating
         $item = StarRatings::$plugin->starRatings->setItemKey($elementId, $key);
-        if (array_key_exists($item, $history)) {
+        if (isset($history[$item])) {
             $userRating = $history[$item];
         }
 

@@ -39,7 +39,7 @@ class m180701_000000_starRatings_convertHalfStarSetting extends Migration
         $settings = $settings->getAttributes();
 
         // If `allowHalfStars` is not set, bail
-        if (!array_key_exists('allowHalfStars', $settings)) {
+        if (!isset($settings['allowHalfStars'])) {
             return true;
         }
 
