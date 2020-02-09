@@ -2,7 +2,7 @@
     "name": "doublesecretagency/craft-starratings",
     "description": "An easy to use and highly flexible ratings system.",
     "type": "craft-plugin",
-    "version": "2.1.1",
+    "version": "2.1.2",
     "keywords": [
         "craft",
         "cms",
