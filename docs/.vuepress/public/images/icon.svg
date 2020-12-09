@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="100px" height="100px" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.1.1 (8761) - http://www.bohemiancoding.com/sketch -->
+    <title>Star Ratings</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <circle id="circle" fill="#9F0004" sketch:type="MSShapeGroup" cx="50" cy="50" r="50"></circle>
+        <path d="M50.1397002,17.7373938 L39.9481906,38.1295848 L17.5279906,42.2059848 L33.8335906,56.4733848 L29.7571906,78.8935848 L50.1397002,68.7025848 L70.5211906,78.8935848 L66.4453002,56.4733848 L82.7514097,42.2059848 L60.3301906,38.1571005 L50.1397002,17.7373938 Z" id="star" fill="#FAA150" sketch:type="MSShapeGroup"></path>
+    </g>
+</svg>
