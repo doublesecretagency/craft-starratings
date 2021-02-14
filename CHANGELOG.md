@@ -43,10 +43,10 @@
 ## 1.3.0 - 2017-09-26
 
 ### Added
-- New ["Rate"](https://www.doublesecretagency.com/plugins/star-ratings/docs/rate-field-type) field type, for CP and front-end forms.
-- New ["Average User Rating"](https://www.doublesecretagency.com/plugins/star-ratings/docs/average-user-rating-field-type) field type, for viewing ratings averages in the CP.
+- New ["Rate"](https://plugins.doublesecretagency.com/star-ratings/rate-field-type) field type, for CP and front-end forms.
+- New ["Average User Rating"](https://plugins.doublesecretagency.com/star-ratings/average-user-rating-field-type) field type, for viewing ratings averages in the CP.
 - Ability to cast rating on behalf of a specific user (via PHP).
-- Ability to see [rating of a specific user](https://www.doublesecretagency.com/plugins/star-ratings/docs/get-rating-cast-by-a-specific-user).
+- Ability to see [rating of a specific user](https://plugins.doublesecretagency.com/star-ratings/get-rating-cast-by-a-specific-user).
 
 ### Changed
 - DEPRECATED: `craft()->starRatings_rate->changeRating` (use `rate` instead).
@@ -70,7 +70,7 @@
 ## 1.2.1 - 2016-05-29
 
 ### Added
-- Added [`onBeforeRate` and `onRate` events](https://www.doublesecretagency.com/plugins/star-ratings/docs/events)
+- Added [`onBeforeRate` and `onRate` events](https://plugins.doublesecretagency.com/star-ratings/events)
 - Added `setIcons` variable and service method
 
 ### Changed
@@ -81,15 +81,15 @@
 
 ### Added
 - Craft 2.5 compatibility.
-- Now accepts an optional "key" parameter, so you can [rate multiple things about the same element](https://www.doublesecretagency.com/plugins/star-ratings/docs/multiple-ratings-for-the-same-element).
-- Now possible to get [the numeric value of an element's average rating](https://www.doublesecretagency.com/plugins/star-ratings/docs/get-numerical-value-of-stars).
-- Now possible to [display a fixed set of stars at a specified value](https://www.doublesecretagency.com/plugins/star-ratings/docs/output-a-set-of-locked-stars).
+- Now accepts an optional "key" parameter, so you can [rate multiple things about the same element](https://plugins.doublesecretagency.com/star-ratings/multiple-ratings-for-the-same-element).
+- Now possible to get [the numeric value of an element's average rating](https://plugins.doublesecretagency.com/star-ratings/get-numerical-value-of-stars).
+- Now possible to [display a fixed set of stars at a specified value](https://plugins.doublesecretagency.com/star-ratings/output-a-set-of-locked-stars).
 
 ## 1.1.0 - 2015-05-24
 
 ### Added
-- Now possible to [prevent rating for miscellaneous reasons](https://www.doublesecretagency.com/plugins/star-ratings/docs/prevent-rating-for-miscellaneous-reasons).
-- Now possible to [disable included JS or CSS](https://www.doublesecretagency.com/plugins/star-ratings/docs/disable-js-or-css).
+- Now possible to [prevent rating for miscellaneous reasons](https://plugins.doublesecretagency.com/star-ratings/prevent-rating-for-miscellaneous-reasons).
+- Now possible to [disable included JS or CSS](https://plugins.doublesecretagency.com/star-ratings/disable-js-or-css).
 
 ## 1.0.0 - 2015-05-19
 
