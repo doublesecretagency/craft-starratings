@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.0 - UNRELEASED
+
+### Added
+- Added [GraphQL support](https://plugins.doublesecretagency.com/star-ratings/graphql-support) with an `avgRating` query and `rate` mutation.
+
 ## 2.1.3 - 2020-08-19
 
 ### Changed

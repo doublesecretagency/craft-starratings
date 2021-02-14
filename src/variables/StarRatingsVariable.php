@@ -313,7 +313,7 @@ window.csrfTokenValue = "'.Craft::$app->request->getCsrfToken().'";
     // ========================================================================= //
 
     // Output average rating of stars
-    public function avgRating($elementId, $key = null)
+    public function avgRating($elementId, $key = null): float
     {
         // If element ID is invalid, log error
         if (!$elementId || !is_numeric($elementId)) {

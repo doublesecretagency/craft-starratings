@@ -11,23 +11,25 @@
 
 namespace doublesecretagency\starratings;
 
-use yii\base\Event;
-
 use Craft;
 use craft\base\Plugin;
 use craft\events\RegisterComponentTypesEvent;
+use craft\events\RegisterGqlMutationsEvent;
+use craft\events\RegisterGqlQueriesEvent;
 use craft\services\Fields;
+use craft\services\Gql;
 use craft\web\twig\variables\CraftVariable;
-
-use doublesecretagency\starratings\models\Settings;
-use doublesecretagency\starratings\services\StarRatingsService;
-use doublesecretagency\starratings\services\Query;
-use doublesecretagency\starratings\services\Rate;
-use doublesecretagency\starratings\variables\StarRatingsVariable;
-use doublesecretagency\starratings\web\assets\SettingsAssets;
-
 use doublesecretagency\starratings\fields\AvgUserRating;
 use doublesecretagency\starratings\fields\Rate as RateField;
+use doublesecretagency\starratings\gql\mutations\Rate as GqlRate;
+use doublesecretagency\starratings\gql\queries\Query as GqlQuery;
+use doublesecretagency\starratings\models\Settings;
+use doublesecretagency\starratings\services\Query;
+use doublesecretagency\starratings\services\Rate;
+use doublesecretagency\starratings\services\StarRatingsService;
+use doublesecretagency\starratings\variables\StarRatingsVariable;
+use doublesecretagency\starratings\web\assets\SettingsAssets;
+use yii\base\Event;
 
 /**
  * Class StarRatings
@@ -84,6 +86,30 @@ class StarRatings extends Plugin
             function (Event $event) {
                 $variable = $event->sender;
                 $variable->set('starRatings', StarRatingsVariable::class);
+            }
+        );
+
+        // Register GraphQL queries
+        Event::on(
+            Gql::class,
+            Gql::EVENT_REGISTER_GQL_QUERIES,
+            function (RegisterGqlQueriesEvent $event) {
+                $queries = GqlQuery::getQueries();
+                foreach ($queries as $key => $value) {
+                    $event->queries[$key] = $value;
+                }
+            }
+        );
+
+        // Register GraphQL mutations
+        Event::on(
+            Gql::class,
+            Gql::EVENT_REGISTER_GQL_MUTATIONS,
+            function (RegisterGqlMutationsEvent $event) {
+                $mutations = GqlRate::getMutations();
+                foreach ($mutations as $key => $value) {
+                    $event->mutations[$key] = $value;
+                }
             }
         );
 
