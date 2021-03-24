@@ -18,7 +18,7 @@ The "key" parameter is optional. Use it only if you need to [rate multiple thing
 
 ```twig
 <table>
-    {% for entry in craft.entries.section('musicCollection') %}
+    {% for entry in craft.entries.section('musicCollection').all() %}
         <tr>
             <td>{{ entry.title }}</td>
             <td>{{ craft.starRatings.stars(entry.id) }}</td>
