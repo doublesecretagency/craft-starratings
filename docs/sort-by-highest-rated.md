@@ -4,21 +4,38 @@ description: You can sort your results to display the highest rated elements fir
 
 # Sort by highest rated
 
-You can sort your results to display the **highest rated** elements first!
+Once your elements are being rated, you'll likely want to know which items are the most popular.
 
-Create an [Element Query](https://craftcms.com/docs/3.x/element-queries.html) just as you normally would, then pass the Element Query into the `sort` method.
+## Basic Sorting
 
+To sort by highest rated, simply order by `avgRating DESC`...
 
 ```twig
+{# Get all songs, sorted by highest average rating #}
+{% set favoriteSongs = craft.entries
+    .section('songs')
+    .orderBy('avgRating DESC')
+    .all() %}
+```
+
+You can apply `.orderBy('avgRating DESC')` to any ordinary element query.
+
+:::warning Field Handle Conflict
+If you have a real field with the handle of `avgRating`, you may see a conflict. To resolve any issues, simply change the existing field handle.
+:::
+
+## Using a Key
+
+If sorting with an optional [key](/multiple-ratings-for-the-same-element/), the process is just slightly more complicated...
+
+```twig
+{# Create a query as you normally would #}
 {% set hotels = craft.entries.section('hotels') %}
 
-{% do craft.starRatings.sort(hotels) %}
-```
-
-If you want to sort by a specific [key](/multiple-ratings-for-the-same-element/), simply add it as the second parameter...
-
-```twig
+{# Pass the query into the `sort` method #}
 {% do craft.starRatings.sort(hotels, 'comfortable') %}
-```
 
-Ratings can be assigned to any valid element type, whether it's native or 3rd party.
+{% for entry in hotels.all() %}
+    {# Loop over highest rated, sorted by "comfortable" #}
+{% endfor %}
+```

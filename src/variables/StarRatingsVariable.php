@@ -154,7 +154,7 @@ class StarRatingsVariable
                     }
 
                     // Adjust size for half stars
-                    if ('half' == $settings->starIncrements) {
+                    if ('half' === $settings->starIncrements) {
                         switch ($iconSize) {
                             case '1/4':
                                 $iconSize = false;

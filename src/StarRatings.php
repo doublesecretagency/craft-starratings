@@ -12,18 +12,24 @@
 namespace doublesecretagency\starratings;
 
 use Craft;
+use craft\base\Element;
 use craft\base\Plugin;
+use craft\elements\db\ElementQuery;
+use craft\events\DefineBehaviorsEvent;
+use craft\events\PopulateElementEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterGqlMutationsEvent;
 use craft\events\RegisterGqlQueriesEvent;
 use craft\services\Fields;
 use craft\services\Gql;
 use craft\web\twig\variables\CraftVariable;
+use doublesecretagency\starratings\behaviors\AvgRatingBehavior;
 use doublesecretagency\starratings\fields\AvgUserRating;
 use doublesecretagency\starratings\fields\Rate as RateField;
 use doublesecretagency\starratings\gql\mutations\Rate as GqlRate;
 use doublesecretagency\starratings\gql\queries\Query as GqlQuery;
 use doublesecretagency\starratings\models\Settings;
+use doublesecretagency\starratings\records\ElementRating;
 use doublesecretagency\starratings\services\Query;
 use doublesecretagency\starratings\services\Rate;
 use doublesecretagency\starratings\services\StarRatingsService;
@@ -86,6 +92,40 @@ class StarRatings extends Plugin
             function (Event $event) {
                 $variable = $event->sender;
                 $variable->set('starRatings', StarRatingsVariable::class);
+            }
+        );
+
+        // Register behaviors
+        Event::on(
+            Element::class,
+            Element::EVENT_DEFINE_BEHAVIORS,
+            function (DefineBehaviorsEvent $event) {
+                $event->behaviors['avgRating'] = AvgRatingBehavior::class;
+            }
+        );
+
+        // Get the average ratings during the element query
+        Event::on(
+            ElementQuery::class,
+            ElementQuery::EVENT_BEFORE_PREPARE,
+            function (Event $event) {
+                /** @var ElementQuery $query */
+                $query = $event->sender;
+                $query->addSelect('[[elementratings.avgRating]]');
+                $query->leftJoin(
+                    ['elementratings' => ElementRating::tableName()],
+                    '[[elements.id]] = [[elementratings.elementId]]'
+                );
+            }
+        );
+
+        // Store the average rating of each element
+        Event::on(
+            ElementQuery::class,
+            ElementQuery::EVENT_AFTER_POPULATE_ELEMENT,
+            function (PopulateElementEvent $event) {
+                $entry = $event->element;
+                $entry->avgRating = (float) $event->row['avgRating'];
             }
         );
 
