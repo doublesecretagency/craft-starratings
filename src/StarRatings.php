@@ -16,10 +16,12 @@ use craft\base\Element;
 use craft\base\Plugin;
 use craft\elements\db\ElementQuery;
 use craft\events\DefineBehaviorsEvent;
+use craft\events\DefineGqlTypeFieldsEvent;
 use craft\events\PopulateElementEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterGqlMutationsEvent;
 use craft\events\RegisterGqlQueriesEvent;
+use craft\gql\TypeManager;
 use craft\services\Fields;
 use craft\services\Gql;
 use craft\web\twig\variables\CraftVariable;
@@ -35,6 +37,7 @@ use doublesecretagency\starratings\services\Rate;
 use doublesecretagency\starratings\services\StarRatingsService;
 use doublesecretagency\starratings\variables\StarRatingsVariable;
 use doublesecretagency\starratings\web\assets\SettingsAssets;
+use GraphQL\Type\Definition\Type;
 use yii\base\Event;
 
 /**
@@ -111,6 +114,15 @@ class StarRatings extends Plugin
             function (Event $event) {
                 /** @var ElementQuery $query */
                 $query = $event->sender;
+                // If getting the COUNT, bail to avoid an error
+                if ($query->select === ['COUNT(*)']) {
+                    return;
+                }
+                // If searching, bail to avoid an error
+                if ($query->select == ['elements.id' => 'elements.id']) {
+                    return;
+                }
+                // Join the `elementratings` table to get `avgRating`
                 $query->addSelect('[[elementratings.avgRating]]');
                 $query->leftJoin(
                     ['elementratings' => ElementRating::tableName()],
@@ -150,6 +162,22 @@ class StarRatings extends Plugin
                 foreach ($mutations as $key => $value) {
                     $event->mutations[$key] = $value;
                 }
+            }
+        );
+
+        // Register GraphQL type fields
+        Event::on(
+            TypeManager::class,
+            TypeManager::EVENT_DEFINE_GQL_TYPE_FIELDS,
+            function (DefineGqlTypeFieldsEvent $event) {
+                $event->fields['avgRating'] = [
+                    'name' => 'avgRating',
+                    'description' => "The element's average star rating.",
+                    'type' => Type::float(),
+                    'resolve' => function ($source) {
+                        return $source->avgRating;
+                    }
+                ];
             }
         );
 

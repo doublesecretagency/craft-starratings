@@ -7,12 +7,6 @@ An easy to use and highly flexible ratings system.
 
 ***
 
->This version is for Craft 3. To install it, visit the Plugin Store in your site's Control Panel.
->
->For the Craft 2 version, see [doublesecretagency.com/plugins/star-ratings](https://www.doublesecretagency.com/plugins/star-ratings)
-
-***
-
 ## Rate Elements
 
 Just specify the element ID of the item you want to rate. Any element type (Entry, Asset, User, etc) will work!
@@ -37,14 +31,11 @@ By default, Star Ratings uses the Font Awesome library. Which means you can easi
 
 ## Sort by Highest Rated
 
-Once your users have cast ratings, you'll want to know which items are the highest rated...
+Once your users have cast ratings, you'll want to know which items are the [highest rated...](https://www.doublesecretagency.com/plugins/star-ratings/docs/sort-by-highest-rated)
 
 ```twig
-{% set hotels = craft.entries.section('hotels') %}
-{% do craft.starRatings.sort(hotels) %}
+{% set mostPopular = craft.entries.orderBy('avgRating DESC').all() %}
 ```
-
-This will grab the list of elements normally, then sort them by [highest rated](https://www.doublesecretagency.com/plugins/star-ratings/docs/sort-by-highest-rated).
 
 ## Settings
 

@@ -3,7 +3,8 @@
 ## Unreleased
 
 ### Added
-- Added the ability to [sort by `avgRating`](https://plugins.doublesecretagency.com/star-ratings/sort-by-highest-rated/) on an ordinary element query.
+- Added the ability to [sort by `avgRating`](https://plugins.doublesecretagency.com/star-ratings/sort-by-highest-rated/) on an ordinary element query. (thanks @bencroker)
+- Added the ability to sort by `avgRating` [via GraphQL](https://plugins.doublesecretagency.com/star-ratings/graphql-support/#sort-elements-by-highest-rated).
 
 ## 2.2.0 - 2021-02-19
 
