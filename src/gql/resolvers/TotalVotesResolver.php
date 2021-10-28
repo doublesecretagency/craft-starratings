@@ -16,10 +16,10 @@ use doublesecretagency\starratings\StarRatings;
 use GraphQL\Type\Definition\ResolveInfo;
 
 /**
- * Class QueryResolver
+ * Class TotalVotesResolver
  * @since 2.2.0
  */
-class QueryResolver extends Resolver
+class TotalVotesResolver extends Resolver
 {
 
     /**
@@ -32,7 +32,7 @@ class QueryResolver extends Resolver
         $key = ($arguments['key'] ?? null);
 
         // Get average rating of element
-        return StarRatings::$plugin->starRatings_query->avgRating($elementId, $key);
+        return StarRatings::$plugin->starRatings_query->totalVotes($elementId, $key);
     }
 
 }

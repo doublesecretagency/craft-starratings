@@ -8,6 +8,10 @@ description: As of v2.2, Star Ratings now supports GraphQL with an `avgRating` q
 
 In order to **sort by highest rated**, order your query by `avgRating DESC`...
 
+<img :src="$withBase('/images/graphql-orderBy-avgRating.png')" class="dropshadow" alt="" style="margin-top:3px; margin-bottom:3px;">
+
+The `avgRating` value acts as a dynamically-added field on your query.
+
 ```graphql
 query MyQuery {
   entries (section: "songs", orderBy: "avgRating DESC") {
@@ -18,13 +22,11 @@ query MyQuery {
 }
 ```
 
-The `avgRating` value acts as a dynamically-added field on your query.
-
-<img :src="$withBase('/images/graphql-orderBy-avgRating.png')" class="dropshadow" alt="" style="margin-top:10px; margin-bottom:10px;">
-
 ## Get Average Rating of an Element
 
 In order to retrieve the **average rating** of a particular element, use the `avgRating` query...
+
+<img :src="$withBase('/images/graphql-avgRating.png')" class="dropshadow" alt="" style="max-width:570px; margin-top:3px; margin-bottom:2px;">
 
 | Variable    | Type     | Default      | Description
 |:------------|:---------|:-------------|:------------
@@ -37,11 +39,28 @@ query MyQuery {
 }
 ```
 
-<img :src="$withBase('/images/graphql-avgRating.png')" class="dropshadow" alt="" style="max-width:570px; margin-top:10px; margin-bottom:50px;">
+## Get Total Votes Cast on an Element
+
+In order to retrieve the **total number of votes** on a particular element, use the `totalVotes` query...
+
+<img :src="$withBase('/images/graphql-totalVotes.png')" class="dropshadow" alt="" style="max-width:570px; margin-top:3px; margin-bottom:2px;">
+
+| Variable    | Type     | Default      | Description
+|:------------|:---------|:-------------|:------------
+| `elementId` | _int_    | **required** | ID of the element.
+| `key`       | _string_ | _null_       | Optional unique key.
+
+```graphql
+query MyQuery {
+  totalVotes(elementId: 101)
+}
+```
 
 ## Cast a Rating on an Element
 
 In order to **cast** a new rating, use the `rate` mutation...
+
+<img :src="$withBase('/images/graphql-rate.png')" class="dropshadow" alt="" style="max-width:570px; margin-top:3px; margin-bottom:2px;">
 
 | Variable    | Type     | Default      | Description
 |:------------|:---------|:-------------|:------------
@@ -55,8 +74,6 @@ mutation MyMutation {
   rate(elementId: 101, rating: 5)
 }
 ```
-
-<img :src="$withBase('/images/graphql-rate.png')" class="dropshadow" alt="" style="max-width:570px; margin-top:10px;">
 
 :::warning Defaults to Currently Logged-in User (if possible)
 When no user ID is specified, the **currently logged in user** will automatically be used instead.

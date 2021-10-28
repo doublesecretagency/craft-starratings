@@ -39,17 +39,17 @@ class Query extends Component
             'elementId' => $elementId,
             'starKey'   => $key,
         ]);
-        return ($record ? $record->avgRating : 0);
+        return (float) ($record->avgRating ?? 0);
     }
 
     //
-    public function totalVotes($elementId, $key = null)
+    public function totalVotes($elementId, $key = null): int
     {
         $record = ElementRating::findOne([
             'elementId' => $elementId,
             'starKey'   => $key,
         ]);
-        return ($record ? $record->totalVotes : 0);
+        return (int) ($record->totalVotes ?? 0);
     }
 
     //

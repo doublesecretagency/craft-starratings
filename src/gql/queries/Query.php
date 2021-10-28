@@ -13,7 +13,8 @@ namespace doublesecretagency\starratings\gql\queries;
 
 use craft\gql\base\Query as BaseQuery;
 use doublesecretagency\starratings\gql\arguments\QueryArguments;
-use doublesecretagency\starratings\gql\resolvers\QueryResolver;
+use doublesecretagency\starratings\gql\resolvers\AvgRatingResolver;
+use doublesecretagency\starratings\gql\resolvers\TotalVotesResolver;
 use GraphQL\Type\Definition\Type;
 
 /**
@@ -32,8 +33,14 @@ class Query extends BaseQuery
             'avgRating' => [
                 'type' => Type::float(),
                 'args' => QueryArguments::getArguments(),
-                'resolve' => QueryResolver::class.'::resolve',
+                'resolve' => AvgRatingResolver::class.'::resolve',
                 'description' => 'Get the average rating of an element.'
+            ],
+            'totalVotes' => [
+                'type' => Type::float(),
+                'args' => QueryArguments::getArguments(),
+                'resolve' => TotalVotesResolver::class.'::resolve',
+                'description' => 'Get the total number of ratings cast on an element.'
             ],
         ];
     }
