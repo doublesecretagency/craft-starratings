@@ -22,6 +22,7 @@ use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterGqlMutationsEvent;
 use craft\events\RegisterGqlQueriesEvent;
 use craft\gql\TypeManager;
+use craft\helpers\StringHelper;
 use craft\services\Fields;
 use craft\services\Gql;
 use craft\web\twig\variables\CraftVariable;
@@ -112,6 +113,8 @@ class StarRatings extends Plugin
             ElementQuery::class,
             ElementQuery::EVENT_BEFORE_PREPARE,
             function (Event $event) {
+                // Generate a random string for unique table identification
+                $rand = StringHelper::randomString(6);
                 /** @var ElementQuery $query */
                 $query = $event->sender;
                 // If getting the COUNT, bail to avoid an error
@@ -123,10 +126,10 @@ class StarRatings extends Plugin
                     return;
                 }
                 // Join the `elementratings` table to get `avgRating`
-                $query->addSelect('[[elementratings.avgRating]]');
+                $query->addSelect("[[elementratings_{$rand}.avgRating]]");
                 $query->leftJoin(
-                    ['elementratings' => ElementRating::tableName()],
-                    '[[elements.id]] = [[elementratings.elementId]]'
+                    ["elementratings_{$rand}" => ElementRating::tableName()],
+                    "[[elements.id]] = [[elementratings_{$rand}.elementId]]"
                 );
             }
         );
