@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.2.1 - 2021-11-10
 
 ### Added
 - Added the ability to [sort by `avgRating`](https://plugins.doublesecretagency.com/star-ratings/sort-by-highest-rated/) on an ordinary element query. (thanks @bencroker)
