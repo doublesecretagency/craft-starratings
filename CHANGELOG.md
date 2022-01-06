@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- New plugin icon.
+
 ## 2.2.1 - 2021-11-10
 
 ### Added
