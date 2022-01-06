@@ -13,6 +13,7 @@ return [
     'allowHalfStars' => true,
     'allowRatingChange' => true,
     'allowFontAwesome' => true,
+    'enableGql' => false,
     'keepRatingLog' => false,
 ];
 ```

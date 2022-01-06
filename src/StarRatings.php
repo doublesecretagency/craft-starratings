@@ -199,6 +199,11 @@ class StarRatings extends Plugin
      */
     protected function settingsHtml(): string
     {
+        // Criteria to enable GraphQL support
+        $isCraftPro = Craft::$app->getEdition() === Craft::Pro;
+        $gqlEnabled = Craft::$app->getConfig()->getGeneral()->enableGql;
+        $isGqlAllowed = ($isCraftPro && $gqlEnabled);
+        // Compile template
         $view = Craft::$app->getView();
         $view->registerAssetBundle(SettingsAssets::class);
         $overrideKeys = array_keys(Craft::$app->getConfig()->getConfigFromFile('star-ratings'));
@@ -206,6 +211,7 @@ class StarRatings extends Plugin
             'settings' => $this->getSettings(),
             'overrideKeys' => $overrideKeys,
             'docsUrl' => $this->documentationUrl,
+            'isGqlAllowed' => $isGqlAllowed,
         ]);
     }
 

@@ -4,6 +4,24 @@ description: As of v2.2, Star Ratings now supports GraphQL with an `avgRating` q
 
 # GraphQL Support
 
+:::warning Support for GraphQL is in BETA
+GraphQL support is currently experimental. Please proceed with caution.
+:::
+
+## Enabling GraphQL support
+
+Before you can enable GraphQL support for Star Ratings:
+ - You must be using Craft [Pro](https://craftcms.com/knowledge-base/upgrading-to-craft-pro) edition (which supports GraphQL).
+ - GraphQL must be [enabled](https://craftcms.com/docs/3.x/config/config-settings.html#enablegql) for Craft.
+
+If both of those criteria are met, you may then enable GraphQL support within Star Ratings.
+
+Enable GraphQL support on the plugin's Settings page:
+
+<img :src="$withBase('/images/settings-gql.png')" class="dropshadow" alt="" style="max-width:600px; margin-top:5px; margin-bottom:10px;">
+
+With GraphQL support fully enabled, you will be able to use any of the following...
+
 ## Sort Elements by Highest Rated
 
 In order to **sort by highest rated**, order your query by `avgRating DESC`...

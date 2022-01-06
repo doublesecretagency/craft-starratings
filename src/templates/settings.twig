@@ -104,6 +104,27 @@
     <p>The default star icons are generated using <a href="https://fontawesome.com/" target="_blank">Font Awesome</a>. It's loaded automatically by the plugin, but can be disabled if necessary.</p>
 </div>
 
+{% if isGqlAllowed %}
+    <hr/>
+    <h2>GraphQL (BETA)</h2>
+    <div class="field">
+        {{ forms.checkbox({
+            label: raw("<strong>Enable GraphQL support</strong>"|t),
+            id: 'enableGql',
+            name: 'enableGql',
+            checked: settings.enableGql,
+            disabled: 'enableGql' in overrideKeys
+        }) }}
+        {{ 'enableGql' in overrideKeys ? configWarning('enableGql') }}
+        <p>Optionally enable the plugin's <a href="https://plugins.doublesecretagency.com/star-ratings/graphql-support/" target="_blank">GraphQL support</a>.</p>
+        <div class="readable">
+            <blockquote class="note warning" style="font-size:15px">
+                <p>GraphQL support is currently <strong>experimental</strong>. Please proceed with caution.</p>
+            </blockquote>
+        </div>
+    </div>
+{% endif %}
+
 <hr/>
 
 <h2>Complete Rating Log</h2>

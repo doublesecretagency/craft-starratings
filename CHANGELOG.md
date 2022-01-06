@@ -2,7 +2,12 @@
 
 ## Unreleased
 
+### Added
+- Added setting to enable GraphQL support.
+
 ### Changed
+- GraphQL support is now disabled by default.
+- GraphQL support is now marked as experimental.
 - New plugin icon.
 
 ## 2.2.1 - 2021-11-10

@@ -35,6 +35,9 @@ class Settings extends Model
     /** @var bool  $allowFontAwesome  Whether to require Font Awesome resources. */
     public $allowFontAwesome = true;
 
+    /** @var bool  $enableGql  Whether to enable GraphQL support. */
+    public $enableGql = false;
+
     /** @var bool  $keepRatingLog  Whether to keep a detailed log of all ratings. */
     public $keepRatingLog = false;
 
