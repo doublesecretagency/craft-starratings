@@ -99,6 +99,78 @@ class StarRatings extends Plugin
             }
         );
 
+        // Register all GraphQL commands
+        $this->_registerGql();
+    }
+
+    /**
+     * Register all GraphQL commands.
+     */
+    private function _registerGql()
+    {
+        // Criteria to enable GraphQL support
+        $isCraftPro = Craft::$app->getEdition() === Craft::Pro;
+        $gqlEnabled = Craft::$app->getConfig()->getGeneral()->enableGql;
+
+        // If GraphQL support is not enabled for Craft, bail
+        if (!$isCraftPro || !$gqlEnabled) {
+            return;
+        }
+
+        // If GraphQL support is not enabled for Star Ratings, bail
+        if (!StarRatings::$plugin->getSettings()->enableGql) {
+            return;
+        }
+
+        // Register behavior to modify queries
+        $this->_registerQueryBehavior();
+
+        // Register GraphQL queries
+        Event::on(
+            Gql::class,
+            Gql::EVENT_REGISTER_GQL_QUERIES,
+            function (RegisterGqlQueriesEvent $event) {
+                $queries = GqlQuery::getQueries();
+                foreach ($queries as $key => $value) {
+                    $event->queries[$key] = $value;
+                }
+            }
+        );
+
+        // Register GraphQL mutations
+        Event::on(
+            Gql::class,
+            Gql::EVENT_REGISTER_GQL_MUTATIONS,
+            function (RegisterGqlMutationsEvent $event) {
+                $mutations = GqlRate::getMutations();
+                foreach ($mutations as $key => $value) {
+                    $event->mutations[$key] = $value;
+                }
+            }
+        );
+
+        // Register GraphQL type fields
+        Event::on(
+            TypeManager::class,
+            TypeManager::EVENT_DEFINE_GQL_TYPE_FIELDS,
+            function (DefineGqlTypeFieldsEvent $event) {
+                $event->fields['avgRating'] = [
+                    'name' => 'avgRating',
+                    'description' => "The element's average star rating.",
+                    'type' => Type::float(),
+                    'resolve' => function ($source) {
+                        return $source->avgRating;
+                    }
+                ];
+            }
+        );
+    }
+
+    /**
+     * Register query behaviors (tied to GraphQL).
+     */
+    private function _registerQueryBehavior()
+    {
         // Register behaviors
         Event::on(
             Element::class,
@@ -143,47 +215,6 @@ class StarRatings extends Plugin
                 $entry->avgRating = (float) $event->row['avgRating'];
             }
         );
-
-        // Register GraphQL queries
-        Event::on(
-            Gql::class,
-            Gql::EVENT_REGISTER_GQL_QUERIES,
-            function (RegisterGqlQueriesEvent $event) {
-                $queries = GqlQuery::getQueries();
-                foreach ($queries as $key => $value) {
-                    $event->queries[$key] = $value;
-                }
-            }
-        );
-
-        // Register GraphQL mutations
-        Event::on(
-            Gql::class,
-            Gql::EVENT_REGISTER_GQL_MUTATIONS,
-            function (RegisterGqlMutationsEvent $event) {
-                $mutations = GqlRate::getMutations();
-                foreach ($mutations as $key => $value) {
-                    $event->mutations[$key] = $value;
-                }
-            }
-        );
-
-        // Register GraphQL type fields
-        Event::on(
-            TypeManager::class,
-            TypeManager::EVENT_DEFINE_GQL_TYPE_FIELDS,
-            function (DefineGqlTypeFieldsEvent $event) {
-                $event->fields['avgRating'] = [
-                    'name' => 'avgRating',
-                    'description' => "The element's average star rating.",
-                    'type' => Type::float(),
-                    'resolve' => function ($source) {
-                        return $source->avgRating;
-                    }
-                ];
-            }
-        );
-
     }
 
     /**
