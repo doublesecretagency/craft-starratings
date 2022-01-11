@@ -5,14 +5,14 @@ description: As of v2.2, Star Ratings now supports GraphQL with an `avgRating` q
 # GraphQL Support
 
 :::warning Support for GraphQL is in BETA
-GraphQL support is currently experimental. Please proceed with caution.
+GraphQL support is currently experimental. Please proceed with caution!
 :::
 
 ## Enabling GraphQL support
 
 Before you can enable GraphQL support for Star Ratings:
- - You must be using Craft [Pro](https://craftcms.com/knowledge-base/upgrading-to-craft-pro) edition (which supports GraphQL).
- - GraphQL must be [enabled](https://craftcms.com/docs/3.x/config/config-settings.html#enablegql) for Craft.
+ - Your Craft site must be the [Pro edition](https://craftcms.com/knowledge-base/upgrading-to-craft-pro).
+ - Your Craft site must have [GraphQL enabled](https://craftcms.com/docs/3.x/config/config-settings.html#enablegql).
 
 If both of those criteria are met, you may then enable GraphQL support within Star Ratings.
 
