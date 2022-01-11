@@ -1,9 +1,9 @@
 # Changelog
 
-## Unreleased
+## 2.2.2 - 2022-01-10
 
 ### Added
-- Added setting to enable GraphQL support.
+- Added a [setting](https://plugins.doublesecretagency.com/star-ratings/graphql-support/#enabling-graphql-support) to enable GraphQL support.
 
 ### Changed
 - GraphQL support is now disabled by default.
