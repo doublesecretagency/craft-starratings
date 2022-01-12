@@ -1,11 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg width="100px" height="100px" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
-    <!-- Generator: Sketch 3.1.1 (8761) - http://www.bohemiancoding.com/sketch -->
-    <title>Star Ratings</title>
-    <desc>Created with Sketch.</desc>
-    <defs></defs>
-    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
-        <circle id="circle" fill="#9F0004" sketch:type="MSShapeGroup" cx="50" cy="50" r="50"></circle>
-        <path d="M50.1397002,17.7373938 L39.9481906,38.1295848 L17.5279906,42.2059848 L33.8335906,56.4733848 L29.7571906,78.8935848 L50.1397002,68.7025848 L70.5211906,78.8935848 L66.4453002,56.4733848 L82.7514097,42.2059848 L60.3301906,38.1571005 L50.1397002,17.7373938 Z" id="star" fill="#FAA150" sketch:type="MSShapeGroup"></path>
-    </g>
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+    <circle fill="#ffffff" cx="50" cy="50" r="45"/>
+    <path fill="#ae1f00" d="M100 50c0 27.614-22.386 50-50 50S0 77.614 0 50 22.386 0 50 0s50 22.386 50 50zm-22.205-8.049c-.219-.672-.801-1.161-1.501-1.26l-17.03-2.465-7.598-15.363c-.31-.639-.957-1.045-1.668-1.045s-1.358.406-1.668 1.045l-7.598 15.363-16.956 2.465c-.703.096-1.29.585-1.511 1.259s-.037 1.416.473 1.909l12.286 11.953-2.909 16.901c-.135.709.154 1.433.741 1.853.55.372 1.257.422 1.853.13l15.288-8.006 15.177 7.969c.26.147.554.223.852.222.556.005 1.084-.241 1.44-.668s.5-.992.395-1.537l-2.909-16.901 12.286-11.953c.526-.468.741-1.193.556-1.872h0z"/>
+    <path fill="#ffe9b3" d="M49.998 66.697V21.925c.688-.019 1.331.345 1.668.945l7.598 15.363 16.956 2.465c.703.096 1.29.585 1.511 1.259s.037 1.416-.473 1.909L64.972 55.819l2.909 16.901c.106.546-.039 1.11-.395 1.537s-.884.672-1.44.668c-.299.001-.592-.076-.852-.222l-15.196-8.006z"/>
 </svg>
