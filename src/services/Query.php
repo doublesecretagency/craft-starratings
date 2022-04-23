@@ -11,15 +11,13 @@
 
 namespace doublesecretagency\starratings\services;
 
-use yii\db\Expression;
-
-use Craft;
 use craft\base\Component;
 use craft\elements\db\ElementQuery;
-
+use doublesecretagency\starratings\models\Settings;
 use doublesecretagency\starratings\StarRatings;
 use doublesecretagency\starratings\records\ElementRating;
 use doublesecretagency\starratings\records\UserHistory;
+use yii\db\Expression;
 
 /**
  * Class Query
@@ -28,8 +26,14 @@ use doublesecretagency\starratings\records\UserHistory;
 class Query extends Component
 {
 
-    //
-    public function avgRating($elementId, $key = null): float
+    /**
+     * Get the average rating of a specified element.
+     *
+     * @param int $elementId
+     * @param string|null $key
+     * @return float
+     */
+    public function avgRating(int $elementId, ?string $key = null): float
     {
         // If key is falsey, force NULL
         if (!$key) {
@@ -42,8 +46,14 @@ class Query extends Component
         return (float) ($record->avgRating ?? 0);
     }
 
-    //
-    public function totalVotes($elementId, $key = null): int
+    /**
+     * Get the total number of votes for a specified element.
+     *
+     * @param int $elementId
+     * @param string|null $key
+     * @return int
+     */
+    public function totalVotes(int $elementId, ?string $key = null): int
     {
         $record = ElementRating::findOne([
             'elementId' => $elementId,
@@ -52,8 +62,15 @@ class Query extends Component
         return (int) ($record->totalVotes ?? 0);
     }
 
-    //
-    public function userRating($userId, $elementId, $key = null)
+    /**
+     * Get the rating cast by a specific user for a specified element.
+     *
+     * @param int|null $userId
+     * @param int $elementId
+     * @param string|null $key
+     * @return int
+     */
+    public function userRating(?int $userId, int $elementId, ?string $key = null): int
     {
         // Ensure the user ID is valid
         StarRatings::$plugin->starRatings->validateUserId($userId);
@@ -61,7 +78,7 @@ class Query extends Component
         // Defaults to unrated
         $userRating = 0;
 
-        // Get settings
+        /** @var Settings $settings */
         $settings = StarRatings::$plugin->getSettings();
 
         // Get user vote history
@@ -79,54 +96,84 @@ class Query extends Component
         return $userRating;
     }
 
-    //
-    public function userHistory($userId = null)
+    /**
+     * Get the rating history of a specified user.
+     *
+     * @param int|null $userId
+     * @return array
+     */
+    public function userHistory(?int $userId = null): array
     {
+        // If no user ID, return empty array
         if (!$userId) {
             return [];
         }
+
+        // Get the history of a specific user
         $record = UserHistory::findOne([
             'id' => $userId,
         ]);
+
+        // If no user record, return empty array
         if (!$record) {
             return [];
         }
+
+        // Return user history
         return json_decode($record->history, true);
     }
 
-    //
-    public function orderByAvgRating(ElementQuery $query, $key = null)
+    /**
+     * Order element query by the average ratings of elements.
+     *
+     * @param ElementQuery $query
+     * @param string|null $key
+     * @return ElementQuery
+     */
+    public function orderByAvgRating(ElementQuery $query, ?string $key = null): ElementQuery
     {
         // Collect and sort elementIds
         $elementIds = $this->_elementIdsByAvgRating($key);
+
+        // If IDs exist
         if ($elementIds) {
             // Match order to elementIds
             $ids = implode(', ', $elementIds);
             $query->orderBy = [new Expression("field([[elements.id]], {$ids}) desc")];
         }
+
+        // Return the modified query
         return $query;
     }
 
-    //
-    private function _elementIdsByAvgRating($key)
+    /**
+     * Get all element IDs, ordered by their average ratings.
+     *
+     * @param string|null $key
+     * @return array|null
+     */
+    private function _elementIdsByAvgRating(?string $key): ?array
     {
         // Don't proceed if key isn't null, string, or numeric
         if (($key !== null) && !is_string($key) && !is_numeric($key)) {
-            return false;
+            return null;
         }
+
         // Adjust conditions based on whether a key was provided
         if (null === $key) {
             $conditions = 'starKey IS NULL';
         } else {
             $conditions = ['starKey' => $key];
         }
+
         // Get elementIds of matching ratings
         $elementIds = ElementRating::find()
             ->select('[[elementId]]')
             ->where($conditions)
             ->orderBy('[[avgRating]] desc, [[totalVotes]] desc, [[dateUpdated]] desc')
             ->column();
-        // Return elementIds
+
+        // Return element IDs
         return array_reverse($elementIds);
     }
 

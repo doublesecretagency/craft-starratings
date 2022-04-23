@@ -21,18 +21,18 @@ class RateEvent extends Event
 {
 
     /** @var int|null The element ID for the item being rated. */
-    public $id;
+    public ?int $id = null;
 
     /** @var string|null An optional key. */
-    public $key;
+    public ?string $key = null;
 
     /** @var int|null The value of the rating. */
-    public $rating;
+    public ?int $rating = null;
 
     /** @var int|null The previous rating value (if it exists). */
-    public $changedFrom;
+    public ?int $changedFrom = null;
 
     /** @var int|null ID of user who cast rating (null if anonymous). */
-    public $userId;
+    public ?int $userId = null;
 
 }

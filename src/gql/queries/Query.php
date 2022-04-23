@@ -27,7 +27,7 @@ class Query extends BaseQuery
     /**
      * @inheritdoc
      */
-    public static function getQueries($checkToken = true): array
+    public static function getQueries(bool $checkToken = true): array
     {
         return [
             'avgRating' => [

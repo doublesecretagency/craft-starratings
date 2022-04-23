@@ -15,20 +15,21 @@ use Craft;
 use craft\base\ElementInterface;
 use craft\base\Field;
 use craft\base\PreviewableFieldInterface;
-
 use doublesecretagency\starratings\StarRatings;
 
 /**
  * Class AvgUserRating
  * @since 2.0.0
+ *
+ * @property-read null|string $settingsHtml
  */
 class AvgUserRating extends Field implements PreviewableFieldInterface
 {
 
     /**
-     * @var string|null
+     * @var string|null Unique key for multiple ratings.
      */
-    public $starKey;
+    public ?string $starKey = null;
 
     // ========================================================================= //
 
@@ -57,7 +58,7 @@ class AvgUserRating extends Field implements PreviewableFieldInterface
      *
      * @inheritdoc
      */
-    public function normalizeValue($value, ElementInterface $element = null)
+    public function normalizeValue(mixed $value, ?ElementInterface $element = null): float
     {
         return $this->_getAverage($element);
     }
@@ -67,9 +68,9 @@ class AvgUserRating extends Field implements PreviewableFieldInterface
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml(): string
+    public function getSettingsHtml(): ?string
     {
-        // Render fieldtype settings template
+        // Render field type settings template
         return Craft::$app->getView()->renderTemplate('star-ratings/fields/avguserrating-settings', [
             'settings' => $this->getSettings()
         ]);
@@ -78,7 +79,7 @@ class AvgUserRating extends Field implements PreviewableFieldInterface
     /**
      * @inheritdoc
      */
-    public function getInputHtml($value, ElementInterface $element = null): string
+    public function getInputHtml(mixed $value, ?ElementInterface $element = null): string
     {
         // Use large stars
         StarRatings::$plugin->starRatings->backendField = true;
@@ -90,7 +91,7 @@ class AvgUserRating extends Field implements PreviewableFieldInterface
     /**
      * @inheritdoc
      */
-    public function getTableAttributeHtml($value, ElementInterface $element): string
+    public function getTableAttributeHtml(mixed $value, ElementInterface $element): string
     {
         return Craft::$app->getView()->renderTemplate('star-ratings/fields/avguserrating-column', [
             'avgRating' => $this->_getAverage($element)

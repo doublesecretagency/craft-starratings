@@ -23,7 +23,7 @@ class Install extends Migration
     /**
      * @inheritdoc
      */
-    public function safeUp()
+    public function safeUp(): void
     {
         $this->createTables();
         $this->createIndexes();
@@ -33,7 +33,7 @@ class Install extends Migration
     /**
      * @inheritdoc
      */
-    public function safeDown()
+    public function safeDown(): void
     {
         $this->dropTableIfExists('{{%starratings_elementratings}}');
         $this->dropTableIfExists('{{%starratings_ratinglog}}');
@@ -42,10 +42,8 @@ class Install extends Migration
 
     /**
      * Creates the tables.
-     *
-     * @return void
      */
-    protected function createTables()
+    protected function createTables(): void
     {
         $this->createTable('{{%starratings_elementratings}}', [
             'id'          => $this->primaryKey(),
@@ -81,10 +79,8 @@ class Install extends Migration
 
     /**
      * Creates the indexes.
-     *
-     * @return void
      */
-    protected function createIndexes()
+    protected function createIndexes(): void
     {
         $this->createIndex(null, '{{%starratings_elementratings}}', ['elementId']);
         $this->createIndex(null, '{{%starratings_ratinglog}}',      ['elementId']);
@@ -92,10 +88,8 @@ class Install extends Migration
 
     /**
      * Adds the foreign keys.
-     *
-     * @return void
      */
-    protected function addForeignKeys()
+    protected function addForeignKeys(): void
     {
         $this->addForeignKey(null, '{{%starratings_elementratings}}', ['elementId'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, '{{%starratings_ratinglog}}',      ['elementId'], '{{%elements}}', ['id'], 'CASCADE');

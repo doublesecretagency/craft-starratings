@@ -11,18 +11,19 @@
 
 namespace doublesecretagency\starratings\services;
 
-use craft\helpers\Json;
-use yii\base\Event;
-use yii\web\Cookie;
-
 use Craft;
 use craft\base\Component;
-
+use craft\elements\User;
+use craft\errors\DeprecationException;
+use craft\helpers\Json;
+use doublesecretagency\starratings\models\Settings;
 use doublesecretagency\starratings\StarRatings;
 use doublesecretagency\starratings\events\RateEvent;
 use doublesecretagency\starratings\records\ElementRating;
 use doublesecretagency\starratings\records\RatingLog;
 use doublesecretagency\starratings\records\UserHistory;
+use yii\base\Event;
+use yii\web\Cookie;
 
 /**
  * Class Rate
@@ -31,21 +32,31 @@ use doublesecretagency\starratings\records\UserHistory;
 class Rate extends Component
 {
 
-    public $starIcons = [];
+    /**
+     * @var array Set of icons for displaying ratings.
+     */
+    public array $starIcons = [];
 
-    public $messageLoginRequired    = 'You must be logged in to rate this element.';
-    public $messageAlreadyRated     = 'You have already rated this element.';
-    public $messageChangeDisallowed = 'Unable to change rating. Rate changing is disabled.';
+    /**
+     * @var string Potential error messages.
+     */
+    public string $messageLoginRequired    = 'You must be logged in to rate this element.';
+    public string $messageAlreadyRated     = 'You have already rated this element.';
+    public string $messageChangeDisallowed = 'Unable to change rating. Rate changing is disabled.';
 
-    //
-    public function init()
+    /**
+     * @inheritdoc
+     */
+    public function init(): void
     {
         parent::init();
         $this->_loadIcons();
     }
 
-    //
-    private function _loadIcons()
+    /**
+     * Default icons for displaying ratings.
+     */
+    private function _loadIcons(): void
     {
         $this->starIcons = [
             '0/4' => $this->_fa('star-o'),
@@ -56,14 +67,23 @@ class Rate extends Component
         ];
     }
 
-    //
-    private function _fa($iconType)
+    /**
+     * Generate an icon using Font Awesome.
+     *
+     * @param string $iconType
+     * @return string
+     */
+    private function _fa(string $iconType): string
     {
         return '<i class="fa fa-'.$iconType.'"></i>';
     }
 
-    //
-    public function setIcons($iconMap = array())
+    /**
+     * Set new icons to display ratings.
+     *
+     * @param array $iconMap
+     */
+    public function setIcons(array $iconMap = []): void
     {
         foreach ($iconMap as $type => $html) {
             switch ($type) {
@@ -89,19 +109,33 @@ class Rate extends Component
         }
     }
 
-    // DEPRECATED: Use `setIcons` instead
-    public function setStarIcons($iconMap = array())
+    /**
+     * Set new icons to display ratings.
+     *
+     * @param array $iconMap
+     * @throws DeprecationException
+     * @deprecated in 2.0.0. Use `setIcons` instead.
+     */
+    public function setStarIcons(array $iconMap = []): void
     {
         Craft::$app->getDeprecator()->log('Rate::setStarIcons', 'Rate::setStarIcons() has been deprecated. Use setIcons() instead.');
-        return $this->setIcons($iconMap);
+        $this->setIcons($iconMap);
     }
 
     // ========================================================================= //
 
-    //
-    public function rate($elementId, $key, $rating, $userId = null)
+    /**
+     * Cast a new rating.
+     *
+     * @param int $elementId
+     * @param string|null $key
+     * @param int $rating
+     * @param int|User|null $userId
+     * @return array|string
+     */
+    public function rate(int $elementId, ?string $key, int $rating, int|User|null $userId = null): array|string
     {
-        // Get settings
+        /** @var Settings $settings */
         $settings = StarRatings::$plugin->getSettings();
 
         // Ensure the user ID is valid
@@ -135,7 +169,7 @@ class Rate extends Component
             Event::trigger(StarRatings::class, StarRatings::EVENT_BEFORE_RATE, new RateEvent($returnData));
         }
 
-        // Cast element rating. Get potential error message.
+        // Cast element rating, get potential error message.
         $message = $this->_rateElement($elementId, $key, $rating, $userId, $changed, $oldRating);
 
         // Trigger event after a rating is cast
@@ -144,21 +178,40 @@ class Rate extends Component
         }
 
         // Return error message or data
-        return ($message ? $message : $returnData);
+        return ($message ?: $returnData);
     }
 
-    // DEPRECATED: Use `rate` instead
-    public function changeRating($elementId, $key, $rating, $oldRating = null, $userId = null)
+    /**
+     * Cast a new rating.
+     *
+     * @param int $elementId
+     * @param string|null $key
+     * @param int $rating
+     * @param int|null $oldRating
+     * @param int|null $userId
+     * @deprecated in 2.0.0. Use `rate` instead.
+     */
+    public function changeRating(int $elementId, ?string $key, int $rating, ?int $oldRating = null, ?int $userId = null): void
     {
         $this->rate($elementId, $key, $rating, $userId);
     }
 
     // ========================================================================= //
 
-    //
-    private function _rateElement($elementId, $key, $rating, $userId, $changed, $oldRating)
+    /**
+     * Internally cast a new rating.
+     *
+     * @param int $elementId
+     * @param string|null $key
+     * @param int $rating
+     * @param int $userId
+     * @param bool $changed
+     * @param int|null $oldRating
+     * @return string|null
+     */
+    private function _rateElement(int $elementId, ?string $key, int $rating, int $userId, bool $changed, ?int $oldRating): ?string
     {
-        // Get settings
+        /** @var Settings $settings */
         $settings = StarRatings::$plugin->getSettings();
 
         // If changed, remove existing rating
@@ -189,8 +242,16 @@ class Rate extends Component
         return null;
     }
 
-    //
-    private function _updateUserHistoryDatabase($elementId, $key, $rating, $userId)
+    /**
+     * Update the logged-in user history in the database.
+     *
+     * @param int $elementId
+     * @param string|null $key
+     * @param int $rating
+     * @param int|null $userId
+     * @return bool
+     */
+    private function _updateUserHistoryDatabase(int $elementId, ?string $key, int $rating, ?int $userId): bool
     {
         // If user is not logged in, return false
         if (!$userId) {
@@ -226,8 +287,15 @@ class Rate extends Component
         return $record->save();
     }
 
-    //
-    private function _updateUserHistoryCookie($elementId, $key, $rating)
+    /**
+     * Update the anonymous user history cookie.
+     *
+     * @param int $elementId
+     * @param string|null $key
+     * @param int $rating
+     * @return bool
+     */
+    private function _updateUserHistoryCookie(int $elementId, ?string $key, int $rating): bool
     {
         $history =& StarRatings::$plugin->starRatings->anonymousHistory;
         $item = StarRatings::$plugin->starRatings->setItemKey($elementId, $key);
@@ -241,8 +309,10 @@ class Rate extends Component
         return true;
     }
 
-    //
-    public function saveUserHistoryCookie()
+    /**
+     * Save the anonymous user history cookie.
+     */
+    public function saveUserHistoryCookie(): void
     {
         // Get cookie settings
         $cookieName = StarRatings::$plugin->starRatings->userCookie;
@@ -256,8 +326,16 @@ class Rate extends Component
         Craft::$app->getResponse()->getCookies()->add($cookie);
     }
 
-    //
-    private function _updateElementAvgRating($elementId, $key, $rating, $removingRating = false)
+    /**
+     * Update the element's average rating.
+     *
+     * @param int $elementId
+     * @param string|null $key
+     * @param int $rating
+     * @param bool $removingRating
+     * @return bool
+     */
+    private function _updateElementAvgRating(int $elementId, ?string $key, int $rating, bool $removingRating = false): bool
     {
         // Load existing element avgRating
         $record = ElementRating::findOne([
@@ -298,12 +376,20 @@ class Rate extends Component
         return $record->save();
     }
 
-    //
-    private function _updateRatingLog($elementId, $key, $rating, $userId, $changed)
+    /**
+     * Update the element rating log.
+     *
+     * @param int $elementId
+     * @param string|null $key
+     * @param int $rating
+     * @param int $userId
+     * @param bool $changed
+     */
+    private function _updateRatingLog(int $elementId, ?string $key, int $rating, int $userId, bool $changed): void
     {
         // If not keeping a rating log, bail
         if (!StarRatings::$plugin->getSettings()->keepRatingLog) {
-            return false;
+            return;
         }
 
         // Log rating
@@ -317,12 +403,18 @@ class Rate extends Component
         $record->save();
     }
 
-    //
-    private function _removeRatingFromDb($elementId, $key, $userId)
+    /**
+     * Remove a rating from the database.
+     *
+     * @param int $elementId
+     * @param string|null $key
+     * @param int $userId
+     */
+    private function _removeRatingFromDb(int $elementId, ?string $key, int $userId): void
     {
         // If no user ID, bail
         if (!$userId) {
-            return false;
+            return;
         }
 
         // Get user history
@@ -332,7 +424,7 @@ class Rate extends Component
 
         // If no user history, bail
         if (!$record) {
-            return false;
+            return;
         }
 
         // Remove from database history
@@ -341,7 +433,7 @@ class Rate extends Component
 
         // If item doesn't exist in history, bail
         if (!isset($historyDb[$item])) {
-            return false;
+            return;
         }
 
         // Remove item from history
@@ -350,22 +442,34 @@ class Rate extends Component
         $record->save();
     }
 
-    //
-    private function _removeRatingFromCookie($elementId, $key)
+    /**
+     * Remove a rating from the anonymous cookie.
+     *
+     * @param int $elementId
+     * @param string|null $key
+     */
+    private function _removeRatingFromCookie(int $elementId, ?string $key): void
     {
         // Get user history
         $history =& StarRatings::$plugin->starRatings->anonymousHistory;
+
         // If no user history, bail
         if (!$history) {
-            return false;
+            return;
         }
+
+        // Get the item key
         $item = StarRatings::$plugin->starRatings->setItemKey($elementId, $key);
+
         // If item doesn't exist in history, bail
         if (!isset($history[$item])) {
-            return false;
+            return;
         }
+
         // Remove item from history
         unset($history[$item]);
+
+        // Save the updated cookie
         $this->saveUserHistoryCookie();
     }
 

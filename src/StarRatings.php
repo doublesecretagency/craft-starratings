@@ -13,6 +13,7 @@ namespace doublesecretagency\starratings;
 
 use Craft;
 use craft\base\Element;
+use craft\base\Model;
 use craft\base\Plugin;
 use craft\elements\db\ElementQuery;
 use craft\events\DefineBehaviorsEvent;
@@ -48,23 +49,35 @@ use yii\base\Event;
 class StarRatings extends Plugin
 {
 
-    /** @event RateEvent The event that is triggered before a rating is cast. */
-    const EVENT_BEFORE_RATE = 'beforeRate';
+    /**
+     * @event RateEvent The event that is triggered before a rating is cast.
+     */
+    public const EVENT_BEFORE_RATE = 'beforeRate';
 
-    /** @event RateEvent The event that is triggered after a rating is cast. */
-    const EVENT_AFTER_RATE = 'afterRate';
+    /**
+     * @event RateEvent The event that is triggered after a rating is cast.
+     */
+    public const EVENT_AFTER_RATE = 'afterRate';
 
-    /** @var Plugin  $plugin  Self-referential plugin property. */
-    public static $plugin;
+    /**
+     * @var StarRatings Self-referential plugin property.
+     */
+    public static StarRatings $plugin;
 
-    /** @var bool  $hasCpSettings  The plugin has a settings page. */
-    public $hasCpSettings = true;
+    /**
+     * @var bool The plugin has a settings page.
+     */
+    public bool $hasCpSettings = true;
 
-    /** @var bool  $schemaVersion  Current schema version of the plugin. */
-    public $schemaVersion = '2.1.0';
+    /**
+     * @var string Current schema version of the plugin.
+     */
+    public string $schemaVersion = '2.1.0';
 
-    /** @inheritDoc */
-    public function init()
+    /**
+     * @inheritdoc
+     */
+    public function init(): void
     {
         parent::init();
         self::$plugin = $this;
@@ -83,7 +96,7 @@ class StarRatings extends Plugin
         Event::on(
             Fields::class,
             Fields::EVENT_REGISTER_FIELD_TYPES,
-            function (RegisterComponentTypesEvent $event) {
+            static function (RegisterComponentTypesEvent $event) {
                 $event->types[] = AvgUserRating::class;
                 $event->types[] = RateField::class;
             }
@@ -93,7 +106,7 @@ class StarRatings extends Plugin
         Event::on(
             CraftVariable::class,
             CraftVariable::EVENT_INIT,
-            function (Event $event) {
+            static function (Event $event) {
                 $variable = $event->sender;
                 $variable->set('starRatings', StarRatingsVariable::class);
             }
@@ -106,7 +119,7 @@ class StarRatings extends Plugin
     /**
      * Register all GraphQL commands.
      */
-    private function _registerGql()
+    private function _registerGql(): void
     {
         // Criteria to enable GraphQL support
         $isCraftPro = Craft::$app->getEdition() === Craft::Pro;
@@ -117,8 +130,11 @@ class StarRatings extends Plugin
             return;
         }
 
+        /** @var Settings $settings */
+        $settings = self::$plugin->getSettings();
+
         // If GraphQL support is not enabled for Star Ratings, bail
-        if (!StarRatings::$plugin->getSettings()->enableGql) {
+        if (!$settings->enableGql) {
             return;
         }
 
@@ -129,7 +145,7 @@ class StarRatings extends Plugin
         Event::on(
             Gql::class,
             Gql::EVENT_REGISTER_GQL_QUERIES,
-            function (RegisterGqlQueriesEvent $event) {
+            static function (RegisterGqlQueriesEvent $event) {
                 $queries = GqlQuery::getQueries();
                 foreach ($queries as $key => $value) {
                     $event->queries[$key] = $value;
@@ -141,7 +157,7 @@ class StarRatings extends Plugin
         Event::on(
             Gql::class,
             Gql::EVENT_REGISTER_GQL_MUTATIONS,
-            function (RegisterGqlMutationsEvent $event) {
+            static function (RegisterGqlMutationsEvent $event) {
                 $mutations = GqlRate::getMutations();
                 foreach ($mutations as $key => $value) {
                     $event->mutations[$key] = $value;
@@ -153,7 +169,7 @@ class StarRatings extends Plugin
         Event::on(
             TypeManager::class,
             TypeManager::EVENT_DEFINE_GQL_TYPE_FIELDS,
-            function (DefineGqlTypeFieldsEvent $event) {
+            static function (DefineGqlTypeFieldsEvent $event) {
                 $event->fields['avgRating'] = [
                     'name' => 'avgRating',
                     'description' => "The element's average star rating.",
@@ -169,13 +185,13 @@ class StarRatings extends Plugin
     /**
      * Register query behaviors (tied to GraphQL).
      */
-    private function _registerQueryBehavior()
+    private function _registerQueryBehavior(): void
     {
         // Register behaviors
         Event::on(
             Element::class,
-            Element::EVENT_DEFINE_BEHAVIORS,
-            function (DefineBehaviorsEvent $event) {
+            Model::EVENT_DEFINE_BEHAVIORS,
+            static function (DefineBehaviorsEvent $event) {
                 $event->behaviors['avgRating'] = AvgRatingBehavior::class;
             }
         );
@@ -184,7 +200,7 @@ class StarRatings extends Plugin
         Event::on(
             ElementQuery::class,
             ElementQuery::EVENT_BEFORE_PREPARE,
-            function (Event $event) {
+            static function (Event $event) {
                 // Generate a random string for unique table identification
                 $rand = StringHelper::randomString(6);
                 /** @var ElementQuery $query */
@@ -194,7 +210,7 @@ class StarRatings extends Plugin
                     return;
                 }
                 // If searching, bail to avoid an error
-                if ($query->select == ['elements.id' => 'elements.id']) {
+                if ($query->select === ['elements.id' => 'elements.id']) {
                     return;
                 }
                 // Join the `elementratings` table to get `avgRating`
@@ -210,7 +226,7 @@ class StarRatings extends Plugin
         Event::on(
             ElementQuery::class,
             ElementQuery::EVENT_AFTER_POPULATE_ELEMENT,
-            function (PopulateElementEvent $event) {
+            static function (PopulateElementEvent $event) {
                 $entry = $event->element;
                 $entry->avgRating = (float) $event->row['avgRating'];
             }
@@ -218,26 +234,32 @@ class StarRatings extends Plugin
     }
 
     /**
-     * @return Settings  Plugin settings model.
+     * @inheritdoc
      */
-    protected function createSettingsModel()
+    protected function createSettingsModel(): ?Model
     {
         return new Settings();
     }
 
     /**
-     * @return string  The fully rendered settings template.
+     * @inheritdoc
      */
-    protected function settingsHtml(): string
+    protected function settingsHtml(): ?string
     {
+        // Get config services
+        $config = Craft::$app->getConfig();
+
+        // Get view services
+        $view = Craft::$app->getView();
+
         // Criteria to enable GraphQL support
         $isCraftPro = Craft::$app->getEdition() === Craft::Pro;
-        $gqlEnabled = Craft::$app->getConfig()->getGeneral()->enableGql;
+        $gqlEnabled = $config->getGeneral()->enableGql;
         $isGqlAllowed = ($isCraftPro && $gqlEnabled);
+
         // Compile template
-        $view = Craft::$app->getView();
         $view->registerAssetBundle(SettingsAssets::class);
-        $overrideKeys = array_keys(Craft::$app->getConfig()->getConfigFromFile('star-ratings'));
+        $overrideKeys = array_keys($config->getConfigFromFile('star-ratings'));
         return $view->renderTemplate('star-ratings/settings', [
             'settings' => $this->getSettings(),
             'overrideKeys' => $overrideKeys,

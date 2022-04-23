@@ -12,7 +12,6 @@
 namespace doublesecretagency\starratings\migrations;
 
 use craft\db\Migration;
-
 use doublesecretagency\starratings\fields\AvgUserRating;
 use doublesecretagency\starratings\fields\Rate;
 
@@ -26,7 +25,7 @@ class m180630_000000_starRatings_updateFieldTypes extends Migration
     /**
      * @inheritdoc
      */
-    public function safeUp()
+    public function safeUp(): void
     {
         // Auto-update existing Rate fields
         $this->update('{{%fields}}', [
@@ -46,7 +45,7 @@ class m180630_000000_starRatings_updateFieldTypes extends Migration
     /**
      * @inheritdoc
      */
-    public function safeDown()
+    public function safeDown(): bool
     {
         echo "m180630_000000_starRatings_updateFieldTypes cannot be reverted.\n";
 

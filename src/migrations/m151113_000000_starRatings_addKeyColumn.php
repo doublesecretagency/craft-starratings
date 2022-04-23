@@ -13,7 +13,8 @@ namespace doublesecretagency\starratings\migrations;
 
 use craft\db\Migration;
 use craft\db\Query;
-use craft\helpers\MigrationHelper;
+use craft\helpers\Db;
+use yii\base\NotSupportedException;
 
 /**
  * Migration: Add key column
@@ -25,7 +26,7 @@ class m151113_000000_starRatings_addKeyColumn extends Migration
     /**
      * @inheritdoc
      */
-    public function safeUp()
+    public function safeUp(): void
     {
         $this->_addStarKeyColumn('{{%starratings_elementratings}}', 'id');
         $this->_addStarKeyColumn('{{%starratings_ratinglog}}', 'elementId');
@@ -36,14 +37,26 @@ class m151113_000000_starRatings_addKeyColumn extends Migration
         $this->_renumberPrimaryKey();
     }
 
-    private function _addStarKeyColumn($table, $after)
+    /**
+     * Adds key column to specified table.
+     *
+     * @param string $table
+     * @param string $after
+     * @throws NotSupportedException
+     */
+    private function _addStarKeyColumn(string $table, string $after): void
     {
         if (!$this->db->columnExists($table, 'starKey')) {
             $this->addColumn($table, 'starKey', $this->string()->after($after));
         }
     }
 
-    private function _addElementIdColumn()
+    /**
+     * Adds an element ID column.
+     *
+     * @throws NotSupportedException
+     */
+    private function _addElementIdColumn(): void
     {
         if (!$this->db->columnExists('{{%starratings_elementratings}}', 'elementId')) {
             $this->addColumn('{{%starratings_elementratings}}', 'elementId', $this->integer()->after('id'));
@@ -51,7 +64,10 @@ class m151113_000000_starRatings_addKeyColumn extends Migration
         $this->addForeignKey(null, '{{%starratings_elementratings}}', ['elementId'], '{{%elements}}', ['id'], 'CASCADE');
     }
 
-    private function _copyForeignKeyData()
+    /**
+     * Copies the foreign key data.
+     */
+    private function _copyForeignKeyData(): void
     {
         // Get data
         $oldData = (new Query())
@@ -68,18 +84,27 @@ class m151113_000000_starRatings_addKeyColumn extends Migration
         $this->alterColumn('{{%starratings_elementratings}}', 'elementId', $this->integer()->notNull());
     }
 
-    private function _removeZeros()
+    /**
+     * Remove records with zero total votes.
+     */
+    private function _removeZeros(): void
     {
         $this->delete('{{%starratings_elementratings}}', 'totalVotes=0');
     }
 
-    private function _cleanupColumns()
+    /**
+     * Clean up columns.
+     */
+    private function _cleanupColumns(): void
     {
-        MigrationHelper::dropForeignKeyIfExists('{{%starratings_elementratings}}', ['id'], $this);
+        Db::dropForeignKeyIfExists('{{%starratings_elementratings}}', ['id'], $this);
         $this->alterColumn('{{%starratings_elementratings}}', 'id', $this->integer().' NOT NULL AUTO_INCREMENT');
     }
 
-    private function _renumberPrimaryKey()
+    /**
+     * Renumber the primary key.
+     */
+    private function _renumberPrimaryKey(): void
     {
         // Get data
         $oldData = (new Query())
@@ -98,7 +123,7 @@ class m151113_000000_starRatings_addKeyColumn extends Migration
     /**
      * @inheritdoc
      */
-    public function safeDown()
+    public function safeDown(): bool
     {
         echo "m151113_000000_starRatings_addKeyColumn cannot be reverted.\n";
 

@@ -25,7 +25,7 @@ function removeClass(el, className) {
     }
 }
 
-// =============================================================================== //
+// ========================================================================= //
 
 // On click event for stars
 document.addEventListener('click', function (e) {

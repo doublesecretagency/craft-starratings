@@ -13,8 +13,10 @@ namespace doublesecretagency\starratings\controllers;
 
 use Craft;
 use craft\web\Controller;
-
+use doublesecretagency\starratings\models\Settings;
 use doublesecretagency\starratings\StarRatings;
+use yii\web\BadRequestHttpException;
+use yii\web\Response;
 
 /**
  * Class RateController
@@ -23,21 +25,23 @@ use doublesecretagency\starratings\StarRatings;
 class RateController extends Controller
 {
 
-    // Protected Properties
-    // =========================================================================
-
     /**
      * @var    bool|array Allows anonymous access to this controller's actions.
      * @access protected
      */
-    protected $allowAnonymous = true;
+    protected array|bool|int $allowAnonymous = true;
 
-    // Rate specified element
-    public function actionIndex()
+    /**
+     * Rate specified element.
+     *
+     * @return Response
+     * @throws BadRequestHttpException
+     */
+    public function actionIndex(): Response
     {
         $this->requirePostRequest();
 
-        // Get settings
+        /** @var Settings $settings */
         $settings = StarRatings::$plugin->getSettings();
 
         // Get current user & login requirement

@@ -20,25 +20,39 @@ use craft\base\Model;
 class Settings extends Model
 {
 
-    /** @var int  $maxStarsAvailable  Number of stars for user to choose from. */
-    public $maxStarsAvailable = 5;
+    /**
+     * @var int Number of stars for user to choose from.
+     */
+    public int $maxStarsAvailable = 5;
 
-    /** @var string  $starIncrements  Smallest fraction to render when displaying stars. */
-    public $starIncrements = 'half';
+    /**
+     * @var string Smallest fraction to render when displaying stars.
+     */
+    public string $starIncrements = 'half';
 
-    /** @var bool  $requireLogin  Whether a user is required to login to cast rating. */
-    public $requireLogin = true;
+    /**
+     * @var bool Whether a user is required to log in to cast rating.
+     */
+    public bool $requireLogin = true;
 
-    /** @var bool  $allowRatingChange  Whether users are allowed to change their rating. */
-    public $allowRatingChange = true;
+    /**
+     * @var bool Whether users are allowed to change their rating.
+     */
+    public bool $allowRatingChange = true;
 
-    /** @var bool  $allowFontAwesome  Whether to require Font Awesome resources. */
-    public $allowFontAwesome = true;
+    /**
+     * @var bool Whether to require Font Awesome resources.
+     */
+    public bool $allowFontAwesome = true;
 
-    /** @var bool  $enableGql  Whether to enable GraphQL support. */
-    public $enableGql = false;
+    /**
+     * @var bool Whether to enable GraphQL support.
+     */
+    public bool $enableGql = false;
 
-    /** @var bool  $keepRatingLog  Whether to keep a detailed log of all ratings. */
-    public $keepRatingLog = false;
+    /**
+     * @var bool Whether to keep a detailed log of all ratings.
+     */
+    public bool $keepRatingLog = false;
 
 }

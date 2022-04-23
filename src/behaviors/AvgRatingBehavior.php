@@ -21,8 +21,8 @@ class AvgRatingBehavior extends Behavior
 {
 
     /**
-     * @var float
+     * @var float Average rating of an element.
      */
-    public $avgRating;
+    public float $avgRating;
 
 }

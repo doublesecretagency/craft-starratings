@@ -25,7 +25,7 @@ class m180701_000000_starRatings_convertHalfStarSetting extends Migration
     /**
      * @inheritdoc
      */
-    public function safeUp()
+    public function safeUp(): bool
     {
         // Get settings
         $settings = StarRatings::$plugin->getSettings();
@@ -63,7 +63,7 @@ class m180701_000000_starRatings_convertHalfStarSetting extends Migration
     /**
      * @inheritdoc
      */
-    public function safeDown()
+    public function safeDown(): bool
     {
         echo "m180701_000000_starRatings_convertHalfStarSetting cannot be reverted.\n";
 

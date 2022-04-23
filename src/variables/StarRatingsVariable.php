@@ -12,14 +12,17 @@
 namespace doublesecretagency\starratings\variables;
 
 use Craft;
-use craft\helpers\Template;
 use craft\elements\db\ElementQuery;
-
+use craft\errors\DeprecationException;
+use craft\helpers\Template;
+use doublesecretagency\starratings\models\Settings;
 use doublesecretagency\starratings\StarRatings;
 use doublesecretagency\starratings\web\assets\CssAssets;
-use doublesecretagency\starratings\web\assets\JsAssets;
 use doublesecretagency\starratings\web\assets\FieldInputAssets;
 use doublesecretagency\starratings\web\assets\FontAwesomeAssets;
+use doublesecretagency\starratings\web\assets\JsAssets;
+use Twig\Markup;
+use yii\base\InvalidConfigException;
 
 /**
  * Class StarRatingsVariable
@@ -28,14 +31,38 @@ use doublesecretagency\starratings\web\assets\FontAwesomeAssets;
 class StarRatingsVariable
 {
 
-    private $_disabled = [];
+    /**
+     * @var array Disabled resources (CSS and/or JS).
+     */
+    private array $_disabled = [];
 
-    private $_cssIncluded  = false;
-    private $_jsIncluded   = false;
-    private $_csrfIncluded = false;
+    /**
+     * @var bool Whether CSS resources have been included.
+     */
+    private bool $_cssIncluded = false;
 
-    // Render stars
-    public function stars($elementId, $key = null, $allowElementRating = true, $userId = null)
+    /**
+     * @var bool Whether JavaScript resources have been included.
+     */
+    private bool $_jsIncluded = false;
+
+    /**
+     * @var bool Whether CSRF token has been included.
+     */
+    private bool $_csrfIncluded = false;
+
+    // ========================================================================= //
+
+    /**
+     * Render stars.
+     *
+     * @param int $elementId
+     * @param string|bool|null $key
+     * @param bool $allowElementRating
+     * @param int|null $userId
+     * @return Markup|string
+     */
+    public function stars(int $elementId, string|bool|null $key = null, bool $allowElementRating = true, ?int $userId = null): Markup|string
     {
         // If element ID is invalid, return error
         if (!$elementId || !is_numeric($elementId)) {
@@ -56,14 +83,27 @@ class StarRatingsVariable
         return $this->_drawStars($avgRating, $userRating, $elementId, $key, $allowElementRating);
     }
 
-    // Render locked stars
-    public function lockedStars($rating)
+    /**
+     * Render locked stars.
+     *
+     * @param float|null $rating
+     * @return Markup
+     */
+    public function lockedStars(?float $rating): Markup
     {
         return $this->_drawStars($rating);
     }
 
-    // Render form field stars
-    public function formField($fieldHandle, $existingValue = 0, $namespace = 'fields')
+    /**
+     * Render form field stars.
+     *
+     * @param string $fieldHandle
+     * @param int|null $existingValue
+     * @param string $namespace
+     * @return Markup
+     * @throws InvalidConfigException
+     */
+    public function formField(string $fieldHandle, ?int $existingValue = 0, string $namespace = 'fields'): Markup
     {
         // Get view
         $view = Craft::$app->getView();
@@ -87,10 +127,19 @@ class StarRatingsVariable
         return Template::raw($div);
     }
 
-    // Draw stars
-    private function _drawStars($avgRating, $userRating = 0, $elementId = null, $key = null, $allowElementRating = false)
+    /**
+     * Draw stars.
+     *
+     * @param float|null $avgRating
+     * @param int|null $userRating
+     * @param int|null $elementId
+     * @param string|null $key
+     * @param bool $allowElementRating
+     * @return Markup
+     */
+    private function _drawStars(?float $avgRating, ?int $userRating = 0, ?int $elementId = null, ?string $key = null, bool $allowElementRating = false): Markup
     {
-        // Get settings
+        /** @var Settings $settings */
         $settings = StarRatings::$plugin->getSettings();
 
         // Set total number of available stars
@@ -98,6 +147,11 @@ class StarRatingsVariable
 
         // Get star icons
         $starIcons = StarRatings::$plugin->starRatings_rate->starIcons;
+
+        // If no average rating, set to zero
+        if (!$avgRating) {
+            $avgRating = 0.0;
+        }
 
         $html = '';
         $partialStar = false;
@@ -213,8 +267,12 @@ class StarRatingsVariable
         return Template::raw($html);
     }
 
-    // Include CSS
-    private function _includeCss()
+    /**
+     * Include CSS.
+     *
+     * @throws InvalidConfigException
+     */
+    private function _includeCss(): void
     {
         // If CSS has been included, bail
         if ($this->_cssIncluded) {
@@ -226,7 +284,7 @@ class StarRatingsVariable
             return;
         }
 
-        // Get settings
+        /** @var Settings $settings */
         $settings = StarRatings::$plugin->getSettings();
 
         // Get view
@@ -242,10 +300,14 @@ class StarRatingsVariable
         $this->_cssIncluded = true;
     }
 
-    // Include JS
-    private function _includeJs()
+    /**
+     * Include JS.
+     *
+     * @throws InvalidConfigException
+     */
+    private function _includeJs(): void
     {
-        // Get settings
+        /** @var Settings $settings */
         $settings = StarRatings::$plugin->getSettings();
 
         // If JS has been included, bail
@@ -301,8 +363,18 @@ window.csrfTokenValue = "'.Craft::$app->request->getCsrfToken().'";
         $this->_jsIncluded = true;
     }
 
-    // JS triggers for individual stars
-    private function _starJs($elementId, $key, $value, $allowElementRating, $prefix = false)
+    /**
+     * JavaScript triggers for individual stars.
+     *
+     * @param int|null $elementId
+     * @param string|null $key
+     * @param int $value
+     * @param bool $allowElementRating
+     * @param bool $prefix
+     * @return string
+     * @throws InvalidConfigException
+     */
+    private function _starJs(?int $elementId, ?string $key, int $value, bool $allowElementRating, bool $prefix = false): string
     {
         $this->_includeJs();
         $jsKey = ($key ? "'$key'" : 'null');
@@ -312,8 +384,14 @@ window.csrfTokenValue = "'.Craft::$app->request->getCsrfToken().'";
 
     // ========================================================================= //
 
-    // Output average rating of stars
-    public function avgRating($elementId, $key = null): float
+    /**
+     * Output average rating of stars.
+     *
+     * @param int $elementId
+     * @param string|null $key
+     * @return float
+     */
+    public function avgRating(int $elementId, ?string $key = null): float
     {
         // If element ID is invalid, log error
         if (!$elementId || !is_numeric($elementId)) {
@@ -324,8 +402,14 @@ window.csrfTokenValue = "'.Craft::$app->request->getCsrfToken().'";
         return StarRatings::$plugin->starRatings_query->avgRating($elementId, $key);
     }
 
-    // Output total votes of element
-    public function totalVotes($elementId, $key = null)
+    /**
+     * Output total votes of element.
+     *
+     * @param int $elementId
+     * @param string|null $key
+     * @return int
+     */
+    public function totalVotes(int $elementId, ?string $key = null): int
     {
         // If element ID is invalid, log error
         if (!$elementId || !is_numeric($elementId)) {
@@ -336,8 +420,15 @@ window.csrfTokenValue = "'.Craft::$app->request->getCsrfToken().'";
         return StarRatings::$plugin->starRatings_query->totalVotes($elementId, $key);
     }
 
-    // Get rating of specific user
-    public function userRating($userId, $elementId, $key = null)
+    /**
+     * Get rating of specific user.
+     *
+     * @param int $userId
+     * @param int $elementId
+     * @param string|null $key
+     * @return int
+     */
+    public function userRating(int $userId, int $elementId, ?string $key = null): int
     {
         // If element ID is invalid, log error
         if (!$elementId || !is_numeric($elementId)) {
@@ -356,27 +447,48 @@ window.csrfTokenValue = "'.Craft::$app->request->getCsrfToken().'";
 
     // ========================================================================= //
 
-    // Customize icons
-    public function setIcons($iconMap = [])
+    /**
+     * Customize icons.
+     *
+     * @param array $iconMap
+     */
+    public function setIcons(array $iconMap = []): void
     {
-        return StarRatings::$plugin->starRatings_rate->setIcons($iconMap);
+        StarRatings::$plugin->starRatings_rate->setIcons($iconMap);
     }
 
-    // DEPRECATED: Use setIcons instead
-    public function setStarIcons($iconMap = [])
+    /**
+     * Customize icons.
+     *
+     * @param array $iconMap
+     * @throws DeprecationException
+     * @deprecated in 2.0.0. Use `setIcons` instead.
+     */
+    public function setStarIcons(array $iconMap = []): void
     {
         Craft::$app->getDeprecator()->log('craft.starRatings.setStarIcons', 'craft.starRatings.setStarIcons() has been deprecated. Use craft.starRatings.setIcons() instead.');
-        return $this->setIcons($iconMap);
+        $this->setIcons($iconMap);
     }
 
-    // Sort by "highest rated"
-    public function sort(ElementQuery $elements, $key = null)
+    /**
+     * Sort by "highest rated".
+     *
+     * @param ElementQuery $elements
+     * @param string|null $key
+     * @return ElementQuery
+     */
+    public function sort(ElementQuery $elements, ?string $key = null): ElementQuery
     {
         return StarRatings::$plugin->starRatings_query->orderByAvgRating($elements, $key);
     }
 
-    // Disable native CSS and/or JS
-    public function disable($resources = [])
+    /**
+     * Disable native CSS and/or JavaScript.
+     *
+     * @param string|array $resources
+     * @return array|null
+     */
+    public function disable(string|array $resources = []): ?array
     {
         if (is_string($resources)) {
             $resources = [$resources];
@@ -384,7 +496,7 @@ window.csrfTokenValue = "'.Craft::$app->request->getCsrfToken().'";
         if (is_array($resources)) {
             return $this->_disabled = array_map('strtolower', $resources);
         }
-        return false;
+        return null;
     }
 
 }
