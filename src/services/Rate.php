@@ -40,6 +40,7 @@ class Rate extends Component
     /**
      * @var string Potential error messages.
      */
+    public string $messageNoUserId         = 'Unable to rate element, no user ID specified.';
     public string $messageLoginRequired    = 'You must be logged in to rate this element.';
     public string $messageAlreadyRated     = 'You have already rated this element.';
     public string $messageChangeDisallowed = 'Unable to change rating. Rate changing is disabled.';
@@ -140,6 +141,11 @@ class Rate extends Component
 
         // Ensure the user ID is valid
         StarRatings::$plugin->starRatings->validateUserId($userId);
+
+        // Ensure the user ID exists
+        if (!$userId) {
+            return $this->messageNoUserId;
+        }
 
         // Get old rating by this user (if exists)
         $oldRating = StarRatings::$plugin->starRatings_query->userRating($userId, $elementId, $key);
