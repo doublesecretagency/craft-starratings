@@ -320,6 +320,10 @@ class Rate extends Component
      */
     public function saveUserHistoryCookie(): void
     {
+        // If running via command line, bail
+        if (Craft::$app->getRequest()->getIsConsoleRequest()) {
+            return;
+        }
         // Get cookie settings
         $cookieName = StarRatings::$plugin->starRatings->userCookie;
         $history    = StarRatings::$plugin->starRatings->anonymousHistory;

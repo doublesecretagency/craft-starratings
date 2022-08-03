@@ -4,6 +4,7 @@
 
 ### Fixed
 - Ensure the user ID exists when rating via PHP.
+- Fixed console conflict for rating elements.
 
 ## 2.3.0 - 2022-05-09
 
