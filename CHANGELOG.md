@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.3.1 - 2022-08-03
 
 ### Fixed
 - Ensure the user ID exists when rating via PHP.
