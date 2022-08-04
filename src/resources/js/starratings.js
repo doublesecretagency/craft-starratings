@@ -34,8 +34,11 @@ var starRatings = {
                     var errorReturned = (typeof results === 'string' || results instanceof String);
                     // If no error message was returned
                     if (!errorReturned) {
+                        if (starRatings.devMode) {
+                            console.log(results.unrated ? 'Item unrated' : 'New rating');
+                        }
                         var i; // Counter
-                        var currentPosition;
+                        var currentPosition = 0;
                         // Remove existing rating
                         for (i = 0; i < elementStars.length; i++) {
                             starRatings._removeClass(elementStars[i], 'sr-avg-rating');
@@ -45,12 +48,15 @@ var starRatings = {
                                 starRatings._removeClass(elementStars[i], 'sr-ratable');
                             }
                         }
-                        // Adds new rating
-                        for (i = 0; i < value; i++) {
-                            elementStars[i].innerHTML = starRatings.starIcons['4/4'];
-                            starRatings._addClass(elementStars[i], 'sr-user-rating');
-                            currentPosition = (i+1);
+                        if (!results.unrated) {
+                            // Adds new rating
+                            for (i = 0; i < value; i++) {
+                                elementStars[i].innerHTML = starRatings.starIcons['4/4'];
+                                starRatings._addClass(elementStars[i], 'sr-user-rating');
+                                currentPosition = (i + 1);
+                            }
                         }
+
                         // Fills remaining stars
                         for (i = currentPosition; i < elementStars.length; i++) {
                             elementStars[i].innerHTML = starRatings.starIcons['0/4'];
