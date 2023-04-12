@@ -1,9 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed bug preventing anonymous users from voting. ([#28](https://github.com/doublesecretagency/craft-starratings/issues/28))
+
 ## 2.3.1 - 2022-08-03
 
 ### Fixed
-- Ensure the user ID exists when rating via PHP.
 - Fixed console conflict for rating elements.
 
 ## 2.3.0 - 2022-05-09

@@ -40,7 +40,6 @@ class Rate extends Component
     /**
      * @var string Potential error messages.
      */
-    public string $messageNoUserId         = 'Unable to rate element, no user ID specified.';
     public string $messageLoginRequired    = 'You must be logged in to rate this element.';
     public string $messageAlreadyRated     = 'You have already rated this element.';
     public string $messageChangeDisallowed = 'Unable to change rating. Rate changing is disabled.';
@@ -142,11 +141,6 @@ class Rate extends Component
         // Ensure the user ID is valid
         StarRatings::$plugin->starRatings->validateUserId($userId);
 
-        // Ensure the user ID exists
-        if (!$userId) {
-            return $this->messageNoUserId;
-        }
-
         // Get old rating by this user (if exists)
         $oldRating = StarRatings::$plugin->starRatings_query->userRating($userId, $elementId, $key);
 
@@ -210,12 +204,12 @@ class Rate extends Component
      * @param int $elementId
      * @param string|null $key
      * @param int $rating
-     * @param int $userId
+     * @param int|null $userId
      * @param bool $changed
      * @param int|null $oldRating
      * @return string|null
      */
-    private function _rateElement(int $elementId, ?string $key, int $rating, int $userId, bool $changed, ?int $oldRating): ?string
+    private function _rateElement(int $elementId, ?string $key, int $rating, ?int $userId, bool $changed, ?int $oldRating): ?string
     {
         /** @var Settings $settings */
         $settings = StarRatings::$plugin->getSettings();
@@ -392,10 +386,10 @@ class Rate extends Component
      * @param int $elementId
      * @param string|null $key
      * @param int $rating
-     * @param int $userId
+     * @param int|null $userId
      * @param bool $changed
      */
-    private function _updateRatingLog(int $elementId, ?string $key, int $rating, int $userId, bool $changed): void
+    private function _updateRatingLog(int $elementId, ?string $key, int $rating, ?int $userId, bool $changed): void
     {
         // If not keeping a rating log, bail
         if (!StarRatings::$plugin->getSettings()->keepRatingLog) {
@@ -418,9 +412,9 @@ class Rate extends Component
      *
      * @param int $elementId
      * @param string|null $key
-     * @param int $userId
+     * @param int|null $userId
      */
-    private function _removeRatingFromDb(int $elementId, ?string $key, int $userId): void
+    private function _removeRatingFromDb(int $elementId, ?string $key, ?int $userId): void
     {
         // If no user ID, bail
         if (!$userId) {

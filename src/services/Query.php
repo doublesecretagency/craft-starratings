@@ -87,6 +87,7 @@ class Query extends Component
         } else {
             $history = StarRatings::$plugin->starRatings->anonymousHistory;
         }
+
         // If user already rated this element, get rating
         $item = StarRatings::$plugin->starRatings->setItemKey($elementId, $key);
         if (isset($history[$item])) {
