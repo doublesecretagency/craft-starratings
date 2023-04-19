@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.3.2 - 2023-04-19
 
 ### Fixed
 - Fixed bug preventing anonymous users from voting. ([#28](https://github.com/doublesecretagency/craft-starratings/issues/28))
