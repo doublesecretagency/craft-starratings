@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.3.3 - 2023-08-07
 
 ### Fixed
 - Fixed bug when creating a new entry containing an Average Rating field. ([#29](https://github.com/doublesecretagency/craft-starratings/issues/29)) (thanks @JamesNock)
