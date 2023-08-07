@@ -29,23 +29,27 @@ class Query extends Component
     /**
      * Get the average rating of a specified element.
      *
-     * @param int $elementId
+     * @param int|null $elementId
      * @param string|null $key
      * @return float
      */
     public function avgRating(?int $elementId, ?string $key = null): float
     {
+        // If no element ID, return zero
         if (!$elementId) {
             return 0;
-        }        
+        }
+
         // If key is falsey, force NULL
         if (!$key) {
             $key = null;
         }
+
         $record = ElementRating::findOne([
             'elementId' => $elementId,
             'starKey'   => $key,
         ]);
+
         return (float) ($record->avgRating ?? 0);
     }
 
@@ -62,6 +66,7 @@ class Query extends Component
             'elementId' => $elementId,
             'starKey'   => $key,
         ]);
+
         return (int) ($record->totalVotes ?? 0);
     }
 
