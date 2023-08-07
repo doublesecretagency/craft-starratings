@@ -33,8 +33,11 @@ class Query extends Component
      * @param string|null $key
      * @return float
      */
-    public function avgRating(int $elementId, ?string $key = null): float
+    public function avgRating(?int $elementId, ?string $key = null): float
     {
+        if (!$elementId) {
+            return 0;
+        }        
         // If key is falsey, force NULL
         if (!$key) {
             $key = null;
