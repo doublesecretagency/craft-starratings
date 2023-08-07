@@ -162,15 +162,23 @@ class Rate extends Component
             'rating'      => $rating,
             'changedFrom' => $oldRating,
             'userId'      => $userId,
+            'unrated'     => false
         ];
+
+        $message = null;
 
         // Trigger event before a rating is cast
         if (Event::hasHandlers(StarRatings::class, StarRatings::EVENT_BEFORE_RATE)) {
             Event::trigger(StarRatings::class, StarRatings::EVENT_BEFORE_RATE, new RateEvent($returnData));
         }
 
-        // Cast element rating, get potential error message.
-        $message = $this->_rateElement($elementId, $key, $rating, $userId, $changed, $oldRating);
+        if (!$changed && $oldRating) {
+            $this->_unrateElement($elementId, $key, $userId, $oldRating);
+            $returnData['unrated'] = true;
+        } else {
+            // Cast element rating. Get potential error message.
+            $message = $this->_rateElement($elementId, $key, $rating, $userId, $changed, $oldRating);
+        }
 
         // Trigger event after a rating is cast
         if (Event::hasHandlers(StarRatings::class, StarRatings::EVENT_AFTER_RATE)) {
@@ -243,15 +251,23 @@ class Rate extends Component
     }
 
     /**
-     * Update the logged-in user history in the database.
+     * Internally remove a rating.
      *
      * @param int $elementId
      * @param string|null $key
-     * @param int $rating
-     * @param int|null $userId
-     * @return bool
+     * @param int $userId
+     * @param int|null $oldRating
      */
-    private function _updateUserHistoryDatabase(int $elementId, ?string $key, int $rating, ?int $userId): bool
+    private function _unrateElement(int $elementId, ?string $key, int $userId, ?int $oldRating)
+    {
+        $this->_removeRatingFromDb($elementId, $key, $userId);
+        $this->_removeRatingFromCookie($elementId, $key);
+        $this->_updateElementAvgRating($elementId, $key, $oldRating, true);
+        $this->_updateRatingLog($elementId, $key, 0, $userId, true);
+    }
+
+    //
+    private function _updateUserHistoryDatabase($elementId, $key, $rating, $userId)
     {
         // If user is not logged in, return false
         if (!$userId) {
