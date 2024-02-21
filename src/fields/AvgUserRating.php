@@ -91,7 +91,7 @@ class AvgUserRating extends Field implements PreviewableFieldInterface
     /**
      * @inheritdoc
      */
-    public function getTableAttributeHtml(mixed $value, ElementInterface $element): string
+    public function getPreviewHtml(mixed $value, ElementInterface $element): string
     {
         return Craft::$app->getView()->renderTemplate('star-ratings/fields/avguserrating-column', [
             'avgRating' => $this->_getAverage($element)

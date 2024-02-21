@@ -72,7 +72,7 @@ class Rate extends Field implements PreviewableFieldInterface
     /**
      * @inheritdoc
      */
-    public function getTableAttributeHtml(mixed $value, ElementInterface $element): string
+    public function getPreviewHtml(mixed $value, ElementInterface $element): string
     {
         return Craft::$app->getView()->renderTemplate('star-ratings/fields/rate-column', [
             'value' => $value
